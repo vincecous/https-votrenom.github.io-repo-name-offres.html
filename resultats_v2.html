@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Résultats – Programme Commercial Vincent</title>
+<style>
+ :root{--bg:#111;--panel:#1a1a1a;--text:#f2f2f2;--muted:#bfbfbf;--brand:#b30000;--shadow:0 6px 18px rgba(0,0,0,.35);--line:#2f2f2f}
+ *{box-sizing:border-box} body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+ header{background:var(--brand);padding:1rem;text-align:center;box-shadow:var(--shadow)} header h1{margin:.2rem 0}
+ nav{background:#222;display:flex;justify-content:center;flex-wrap:wrap} nav a{color:#fff;text-decoration:none;padding:.8rem 1.1rem} nav a:hover{background:var(--brand)}
+ main{padding:1.25rem;width:min(1200px,96vw);margin:0 auto}
+ .card{background:#1a1a1a;border-radius:12px;box-shadow:var(--shadow);padding:1rem;margin-bottom:1rem}
+ table{width:100%;border-collapse:collapse} th,td{border:1px solid var(--line);padding:.6rem;vertical-align:top} th{background:#181818}
+ .muted{color:#bfbfbf}
+ .btn{border:none;border-radius:10px;padding:.55rem .9rem;background:#222;color:#fff;cursor:pointer}
+</style>
+</head>
+<body>
+<header><h1>📊 Résultats — Transmosca</h1><div>Programme Commercial Vincent</div></header>
+<nav>
+  <a href="index.html">🏠 Accueil</a>
+  <a href="clients.html">👥 Clients</a>
+  <a href="agenda.html">🗓️ Agenda</a>
+  <a href="rapports.html">📄 Rapport de visite</a>
+  <a href="offres.html">💰 Offres</a>
+  <a href="contrats.html">📄 Contrats</a>
+  <a href="resultats.html">📊 Résultats</a>
+</nav>
+
+<main>
+  <section class="card">
+    <div style="display:flex;gap:.6rem;align-items:center;margin-bottom:.6rem">
+      <h2 style="margin:0;flex:1">Contrats et Chiffre d'affaires</h2>
+      <button class="btn" id="csvBtn">⬇️ Export CSV</button>
+    </div>
+    <div id="wrap"></div>
+  </section>
+</main>
+
+<script>
+(function(){
+  const KEY="tm_contrats";
+  function read(){ try{ return JSON.parse(localStorage.getItem(KEY)||"[]"); }catch{return []} }
+  function render(){
+    const data=read();
+    if(!data.length){ document.getElementById('wrap').innerHTML='<div class="muted">Aucun contrat pour l'instant.</div>'; return; }
+    
+    // Calculer CA total et par année
+    let caTotal = 0;
+    let caParAnnee = {};
+    
+    data.forEach(c => {
+      const ca = c.caTotalPrevu || 0;
+      caTotal += ca;
+      const year = new Date(c.createdAt || c.startDate).getFullYear();
+      caParAnnee[year] = (caParAnnee[year] || 0) + ca;
+    });
+    
+    let rows=data.map(c=>`<tr>
+      <td>${c.number||''}</td>
+      <td>${c.etablissement ? '<strong>'+c.etablissement+'</strong><br/><small style="color:#999;">' + (c.clientName||'') + '</small>' : c.clientName||''}</td>
+      <td>${c.contractType||''}</td>
+      <td style="text-align:center;">${(c.lignes||[]).length}</td>
+      <td style="text-align:center;">${c.dureeContrat ? c.dureeContrat + ' mois' : '—'}</td>
+      <td style="text-align:right;font-weight:600;">${(c.caAnnuel||0).toLocaleString('fr-FR', {minimumFractionDigits:2})} €</td>
+      <td style="text-align:right;font-weight:600;color:#0b6;">${(c.caTotalPrevu||0).toLocaleString('fr-FR', {minimumFractionDigits:2})} €</td>
+      <td style="text-align:center;">${(c.startDate||'').slice(0,10)}</td>
+    </tr>`).join('');
+    
+    let summary = '<div style="background:#f9f9f9;padding:16px;border-radius:8px;margin-bottom:18px;border:2px solid #b30000;">';
+    summary += '<h4 style="margin:0 0 12px;color:#b30000;font-size:16px;">📊 Résumé du chiffre d\'affaires</h4>';
+    summary += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;">';
+    summary += `<div style="background:#fff;padding:14px;border-radius:8px;border-left:5px solid #b30000;box-shadow:0 2px 8px rgba(0,0,0,.1);"><strong style="color:#666;font-size:13px;">CA TOTAL PRÉVU</strong><br/><span style="font-size:24px;color:#b30000;font-weight:700;">${caTotal.toLocaleString('fr-FR', {minimumFractionDigits:2})} €</span></div>`;
+    
+    Object.keys(caParAnnee).sort().reverse().forEach(year => {
+      summary += `<div style="background:#fff;padding:14px;border-radius:8px;border-left:5px solid #0b6;box-shadow:0 2px 8px rgba(0,0,0,.1);"><strong style="color:#666;font-size:13px;">CA ${year}</strong><br/><span style="font-size:22px;color:#0b6;font-weight:600;">${caParAnnee[year].toLocaleString('fr-FR', {minimumFractionDigits:2})} €</span></div>`;
+    });
+    
+    summary += '</div></div>';
+    
+    document.getElementById('wrap').innerHTML=summary + `<table><thead><tr><th>N° Contrat</th><th>Client / Établissement</th><th>Type</th><th># Produits</th><th>Durée</th><th>CA Annuel</th><th>CA Total</th><th>Date</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+  function toCSV(){
+    const data=read(); if(!data.length) return;
+    const head=['number','clientName','etablissement','contractType','dureeContrat','caAnnuel','caTotalPrevu','startDate','email','tel','tva','adresse','adressePresta'];
+    const rows=[head.join(';')].concat(data.map(c=> head.map(k=> String(c[k]??'').replaceAll(';',',')).join(';') ));
+    const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.join('\n')); a.download='contrats_transmosca_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+  }
+  document.getElementById('csvBtn').onclick=toCSV;
+  render();
+})();
+</script>
+</body>
+</html>
