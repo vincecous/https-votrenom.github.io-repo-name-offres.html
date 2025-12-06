@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Agenda – Programme Commercial Vincent</title>
+<style>
+  :root{
+    --bg:#111; --panel:#1a1a1a; --text:#f2f2f2; --muted:#bfbfbf;
+    --brand:#b30000; --grid:#262626; --line:#2f2f2f; --shadow:0 6px 18px rgba(0,0,0,.35);
+    --rdv:#1976d2; --visite:#d32f2f; /* RDV=bleu, Visite=rouge */
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+  header{background:var(--brand);padding:1rem;text-align:center;box-shadow:var(--shadow)}
+  header h1{margin:.2rem 0}
+  nav.top{background:#222;display:flex;justify-content:center;flex-wrap:wrap}
+  nav.top a{color:#f2f2f2;text-decoration:none;padding:.8rem 1.1rem}
+  nav.top a:hover{background:var(--brand)}
+  main{flex:1;width:min(1200px,96vw);margin:0 auto;padding:1.25rem}
+  .toolbar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-bottom:1rem}
+  .toolbar .sp{flex:1}
+  .btn{border:none;border-radius:10px;padding:.55rem .9rem;background:#222;color:#fff;cursor:pointer}
+  .btn:hover{background:#2b2b2b}
+  .btn.primary{background:var(--brand)}
+  .btn.primary:hover{filter:brightness(1.05)}
+  .select, input[type="date"]{background:#161616;color:#eee;border:1px solid #333;border-radius:10px;padding:.55rem .6rem}
+  .legend{display:flex;gap:.8rem;align-items:center}
+  .dot{width:14px;height:14px;border-radius:3px;display:inline-block}
+  .card{background:var(--panel);border-radius:14px;box-shadow:var(--shadow);padding:1rem}
+  .grid{border:1px solid var(--grid);border-radius:10px;overflow:hidden;background:#121212}
+  .grid .head{display:grid;background:#181818;border-bottom:1px solid var(--grid)}
+  .grid .row{display:grid;border-top:1px solid var(--line)}
+  .cell{border-left:1px solid var(--line);min-height:52px;padding:4px;position:relative}
+  .cell:first-child{border-left:none}
+  .timeCol{width:70px;background:#151515;text-align:right;padding-right:6px;color:#aaa;border-right:1px solid var(--grid)}
+  .event{position:absolute;left:2px;right:2px;border-radius:8px;padding:.25rem .35rem;font-size:.8rem;overflow:hidden;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+  .event .t{opacity:.9;font-weight:600}
+  .event.rdv{background:var(--rdv)}
+  .event.visite{background:var(--visite)}
+  /* Month */
+  .month{display:grid;grid-template-columns:repeat(7,1fr)}
+  .month .mcell{border-top:1px solid var(--line);border-left:1px solid var(--line);min-height:110px;padding:6px;position:relative}
+  .month .mcell:nth-child(7n+1){border-left:none}
+  .mdate{position:absolute;top:6px;right:8px;color:#aaa;font-size:.8rem}
+  .mtitle{grid-column:1/-1;background:#181818;border-bottom:1px solid var(--grid);padding:.6rem 1rem;font-weight:700}
+  .pill{display:inline-block;padding:.18rem .4rem;border-radius:999px;font-size:.72rem;margin-right:.25rem;color:#fff}
+  /* Modal */
+  .modalBack{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:1rem}
+  .modal{width:min(520px,95vw);background:#1a1a1a;border:1px solid #2b2b2b;border-radius:14px;padding:1rem}
+  label{display:block;color:#ccc;margin-top:.7rem}
+  input,select,textarea{width:100%;background:#131313;color:#f2f2f2;border:1px solid #333;border-radius:8px;padding:.55rem}
+  textarea{min-height:90px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:760px){ .row2{grid-template-columns:1fr} .timeCol{width:48px} }
+  footer{background:#222;color:#bfbfbf;text-align:center;padding:1rem}
+</style>
+</head>
+<body>
+<header>
+  <h1>🗓️ Agenda — Transmosca</h1>
+  <div>Programme Commercial Vincent</div>
+</header>
+
+<nav class="top">
+  <a href="index.html">🏠 Accueil</a>
+  <a href="clients.html">👥 Clients</a>
+  <a href="agenda.html">🗓️ Agenda</a>
+  <a href="rapports.html">📄 Rapport de visite</a>
+  <a href="offres.html">💰 Offres</a>
+  <a href="contrats.html">📄 Contrats</a>
+  <a href="resultats.html">📊 Résultats</a>
+</nav>
+
+<main>
+  <div class="toolbar card">
+    <button class="btn" id="prevBtn">◀️</button>
+    <button class="btn" id="todayBtn">Aujourd’hui</button>
+    <button class="btn" id="nextBtn">▶️</button>
+    <input type="date" id="jumpDate" />
+    <span class="sp"></span>
+    <div class="legend">
+      <span class="dot" style="background:var(--rdv)"></span> RDV
+      <span class="dot" style="background:var(--visite)"></span> Visite
+    </div>
+    <select id="viewSel" class="select">
+      <option value="week">Hebdomadaire</option>
+      <option value="day">Journalière</option>
+      <option value="month">Mensuelle</option>
+    </select>
+    <button class="btn primary" id="newBtn">➕ Ajouter</button>
+  </div>
+
+  <div id="agenda" class="card grid"></div>
+</main>
+
+<footer>&copy; 2025 Transmosca — Agenda</footer>
+
+<!-- Modal -->
+<div class="modalBack" id="modalBack">
+  <div class="modal">
+    <h3 id="mTitle" style="margin:0 0 .4rem">Nouvel évènement</h3>
+    <div class="row2">
+      <div>
+        <label>Type</label>
+        <select id="mType">
+          <option value="rdv">Rendez-vous</option>
+          <option value="visite">Visite</option>
+        </select>
+      </div>
+      <div>
+        <label>Titre</label>
+        <input id="mTitleInput" placeholder="Ex. RDV client / Visite site" />
+      </div>
+    </div>
+    <div class="row2">
+      <div>
+        <label>Début</label>
+        <input id="mStart" type="datetime-local" />
+      </div>
+      <div>
+        <label>Fin</label>
+        <input id="mEnd" type="datetime-local" />
+      </div>
+    </div>
+    <div class="row2">
+      <div>
+        <label>Personne de contact</label>
+        <input id="mContact" placeholder="Nom du contact" />
+      </div>
+      <div>
+        <label>Téléphone</label>
+        <input id="mPhone" placeholder="+32 ..." />
+      </div>
+    </div>
+    <label>Remarques</label>
+    <textarea id="mNotes" placeholder="Détails, lieu, accès..."></textarea>
+    <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.8rem">
+      <button class="btn danger" id="mDelete" style="display:none">Supprimer</button>
+      <button class="btn" id="mCancel">Annuler</button>
+      <button class="btn primary" id="mSave">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // === stockage (plusieurs clés compatibles)
+  const KEYS = ["tm_agenda_events","tm_events","tm_clients_rdv"];
+  const readAll = ()=>{
+    for(const k of KEYS){
+      try{ const v = JSON.parse(localStorage.getItem(k)||"[]"); if(Array.isArray(v) && v.length>=0) return {key:k, data:v}; }catch{}
+    }
+    return {key:KEYS[0], data:[]};
+  };
+  const writeAll = (key,data)=> localStorage.setItem(key, JSON.stringify(data));
+
+  // === helpers dates
+  const toDate = v => (v instanceof Date ? v : new Date(v));
+  const fmtDate = d => d.toISOString().slice(0,10);
+  const fmtDT = d => { const p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; };
+  const startOfWeek = d => { const x=new Date(d); const day=(x.getDay()+6)%7; x.setDate(x.getDate()-day); x.setHours(0,0,0,0); return x; };
+  const addDays = (d,n)=>{ const x=new Date(d); x.setDate(x.getDate()+n); return x; };
+  const sameDay = (a,b)=> a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+
+  // === état
+  let {key:STORE_KEY, data:events} = readAll();
+  let view = localStorage.getItem('tm_agenda_view') || 'week';
+  let cursor = new Date(); // date "centrale"
+  const agenda = document.getElementById('agenda');
+  const viewSel = document.getElementById('viewSel');
+  const jumpDate = document.getElementById('jumpDate');
+
+  // === UI init
+  viewSel.value = view;
+  jumpDate.value = fmtDate(cursor);
+
+  document.getElementById('todayBtn').onclick=()=>{ cursor=new Date(); jumpDate.value=fmtDate(cursor); render(); };
+  document.getElementById('prevBtn').onclick=()=>{ cursor = shift(-1); jumpDate.value=fmtDate(cursor); render(); };
+  document.getElementById('nextBtn').onclick=()=>{ cursor = shift(+1); jumpDate.value=fmtDate(cursor); render(); };
+  jumpDate.onchange=e=>{ cursor = new Date(e.target.value+"T12:00"); render(); };
+  viewSel.onchange=e=>{ view=e.target.value; localStorage.setItem('tm_agenda_view',view); render(); };
+  document.getElementById('newBtn').onclick=()=> openModal();
+
+  function shift(n){
+    const d = new Date(cursor);
+    if(view==='day') d.setDate(d.getDate()+n);
+    else if(view==='week') d.setDate(d.getDate()+7*n);
+    else d.setMonth(d.getMonth()+n);
+    return d;
+  }
+
+  // === rendu principal
+  function render(){
+    agenda.innerHTML = '';
+    if(view==='day') renderDay();
+    else if(view==='week') renderWeek();
+    else renderMonth();
+  }
+
+  // === JOUR
+  function renderDay(){
+    const startHour = 7, endHour = 21, stepMin = 30;
+    const hours = []; for(let h=startHour; h<=endHour; h++) hours.push(h);
+    const grid = document.createElement('div');
+    grid.className = 'grid';
+    // head
+    const head = document.createElement('div'); head.className='head'; head.style.gridTemplateColumns=`70px 1fr`;
+    head.innerHTML = `<div class="timeCol"></div><div class="cell" style="background:#181818;font-weight:700;display:flex;align-items:center">${cursor.toLocaleDateString('fr-FR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'})}</div>`;
+    grid.appendChild(head);
+    // body rows
+    for(const h of hours){
+      const row = document.createElement('div'); row.className='row'; row.style.gridTemplateColumns=`70px 1fr`;
+      const lab = document.createElement('div'); lab.className='timeCol'; lab.textContent = h.toString().padStart(2,'0')+':00';
+      const cell = document.createElement('div'); cell.className='cell'; cell.style.minHeight='60px';
+      // sublines each 30min
+      for(let m=stepMin; m<60; m+=stepMin){
+        const line = document.createElement('div'); line.style.position='absolute'; line.style.left='70px'; line.style.right='4px';
+        line.style.top = `${((h-startHour)+(m/60)) * 60}px`; line.style.height='1px'; line.style.background='var(--line)';
+        grid.appendChild(line);
+      }
+      row.appendChild(lab); row.appendChild(cell); grid.appendChild(row);
+    }
+    agenda.appendChild(grid);
+    // place events of the day
+    const dayEvents = events.filter(e => sameDay(new Date(e.start), cursor));
+    dayEvents.forEach(ev => placeTimedEvent(ev, grid, startHour, 'day'));
+  }
+
+  // === SEMAINE
+  function renderWeek(){
+    const startHour = 7, endHour = 21, stepMin=30;
+    const start = startOfWeek(cursor);
+    const days = [...Array(7)].map((_,i)=> addDays(start,i));
+    const head = document.createElement('div'); head.className='head';
+    head.style.gridTemplateColumns = `70px repeat(7, 1fr)`;
+    let hhtml = `<div class="timeCol"></div>`;
+    for(const d of days){
+      hhtml += `<div class="cell" style="background:#181818;font-weight:700;display:flex;align-items:center;justify-content:center">${d.toLocaleDateString('fr-FR',{weekday:'short',day:'2-digit',month:'2-digit'})}</div>`;
+    }
+    head.innerHTML = hhtml;
+
+    const grid = document.createElement('div'); grid.className='grid'; grid.appendChild(head);
+
+    for(let h=startHour; h<=endHour; h++){
+      const row = document.createElement('div'); row.className='row';
+      row.style.gridTemplateColumns = `70px repeat(7, 1fr)`;
+      const lab = document.createElement('div'); lab.className='timeCol'; lab.textContent = String(h).padStart(2,'0')+':00';
+      row.appendChild(lab);
+      for(let i=0;i<7;i++){
+        const cell = document.createElement('div'); cell.className='cell'; cell.dataset.dayIndex=i; cell.dataset.hour=h;
+        row.appendChild(cell);
+      }
+      grid.appendChild(row);
+    }
+    agenda.appendChild(grid);
+
+    // events of the week
+    const weekEvents = events.filter(e=>{
+      const s=new Date(e.start);
+      return s>=addDays(start,0) && s<addDays(start,7);
+    });
+    weekEvents.forEach(ev => placeTimedEvent(ev, grid, startHour, 'week', start));
+  }
+
+  // place event boxes on day/week grids
+  function placeTimedEvent(ev, grid, startHour, mode, weekStart){
+    const s = new Date(ev.start), e = new Date(ev.end||ev.start);
+    const durMin = Math.max(30, (e - s)/60000);
+    const topPx = ((s.getHours()-startHour) + s.getMinutes()/60) * 60; // 60px per hour approx
+    const heightPx = Math.max(28, durMin/60*60 - 4);
+
+    const box = document.createElement('div');
+    box.className = `event ${ev.type==='visite' ? 'visite' : 'rdv'}`;
+    box.style.top = `${topPx+2}px`; box.style.height = `${heightPx}px`;
+    box.innerHTML = `<div class="t">${ev.title||'(Sans titre)'}</div><div style="font-size:.72rem;opacity:.9">${s.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}–${e.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div>`;
+    box.onclick = ()=> openModal(ev);
+
+    if(mode==='day'){
+      // find the content cell for this hour row (second column)
+      const rows = grid.querySelectorAll('.row');
+      const firstRowTop = 0; // we place absolute inside grid using offset
+      const colCell = grid.querySelector('.head'); // we append to grid and let absolute do its job
+      box.style.left='76px'; box.style.right='6px'; box.style.position='absolute';
+      grid.appendChild(box);
+    } else {
+      // compute day column
+      const idx = ((s.getDay()+6)%7); // Monday=0
+      box.style.position='absolute';
+      // left/right bounds of the column
+      const headCells = grid.querySelector('.head').children;
+      const col = headCells[idx+1]; // +1 because of time column
+      const rectGrid = grid.getBoundingClientRect();
+      const rectCol = col.getBoundingClientRect();
+      box.style.left = (rectCol.left - rectGrid.left + 4) + 'px';
+      box.style.width = (rectCol.width - 8) + 'px';
+      box.style.top = (grid.querySelector('.head').getBoundingClientRect().height + topPx + 2) + 'px';
+      grid.appendChild(box);
+    }
+  }
+
+  // === MOIS
+  function renderMonth(){
+    const y = cursor.getFullYear(), m = cursor.getMonth();
+    const first = new Date(y,m,1);
+    const start = startOfWeek(first);
+    const month = document.createElement('div'); month.className='grid';
+    const title = document.createElement('div'); title.className='mtitle'; title.textContent = cursor.toLocaleDateString('fr-FR',{month:'long', year:'numeric'});
+    month.appendChild(title);
+
+    const weekHead = document.createElement('div');
+    weekHead.className='month'; weekHead.style.background='#181818'; weekHead.style.borderBottom='1px solid var(--grid)';
+    const days = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+    days.forEach(d=>{ const c=document.createElement('div'); c.className='mcell'; c.style.minHeight='auto'; c.style.border='none'; c.style.padding='8px'; c.style.textAlign='center'; c.style.fontWeight='700'; c.textContent=d; weekHead.appendChild(c); });
+    month.appendChild(weekHead);
+
+    const wrap = document.createElement('div'); wrap.className='month';
+    for(let i=0;i<42;i++){
+      const d = addDays(start,i);
+      const cell = document.createElement('div'); cell.className='mcell';
+      const n = document.createElement('div'); n.className='mdate'; n.textContent = d.getDate().toString().padStart(2,'0');
+      if(d.getMonth()!==m) { cell.style.opacity='.45'; }
+      cell.appendChild(n);
+      // list events
+      events.filter(e=> sameDay(new Date(e.start), d)).slice(0,4).forEach(ev=>{
+        const p = document.createElement('div');
+        p.className='pill'; p.style.background = ev.type==='visite'?'var(--visite)':'var(--rdv)';
+        p.textContent = (ev.title||'Évènement');
+        p.style.display='block'; p.style.marginTop='20px';
+        p.onclick = (evn)=>{ evn.stopPropagation(); openModal(ev); };
+        cell.appendChild(p);
+      });
+      wrap.appendChild(cell);
+    }
+    month.appendChild(wrap);
+    agenda.appendChild(month);
+  }
+
+  // === MODAL CRUD
+  const mb = document.getElementById('modalBack');
+  const mTitle = document.getElementById('mTitle');
+  const mType = document.getElementById('mType');
+  const mTitleInput = document.getElementById('mTitleInput');
+  const mStart = document.getElementById('mStart');
+  const mEnd = document.getElementById('mEnd');
+  const mContact = document.getElementById('mContact');
+  const mPhone = document.getElementById('mPhone');
+  const mNotes = document.getElementById('mNotes');
+  const mDelete = document.getElementById('mDelete');
+  const mCancel = document.getElementById('mCancel');
+  const mSave = document.getElementById('mSave');
+  let editingId = null;
+
+  function openModal(ev){
+    mb.style.display='flex';
+    if(ev){
+      editingId = ev.id;
+      mTitle.textContent = 'Modifier l’évènement';
+      mType.value = ev.type || 'rdv';
+      mTitleInput.value = ev.title || '';
+      mStart.value = fmtDT(new Date(ev.start));
+      mEnd.value = fmtDT(new Date(ev.end||ev.start));
+      mContact.value = ev.contact||'';
+      mPhone.value = ev.phone||'';
+      mNotes.value = ev.notes||'';
+      mDelete.style.display='inline-block';
+    }else{
+      editingId = null;
+      mTitle.textContent = 'Nouvel évènement';
+      mType.value='rdv'; mTitleInput.value='';
+      const base = new Date(cursor); base.setHours(9,0,0,0);
+      mStart.value = fmtDT(base);
+      const end = new Date(base); end.setHours(base.getHours()+1);
+      mEnd.value = fmtDT(end);
+      mContact.value=''; mPhone.value=''; mNotes.value='';
+      mDelete.style.display='none';
+    }
+  }
+  function closeModal(){ mb.style.display='none'; }
+
+  mCancel.onclick = closeModal;
+  mDelete.onclick = ()=>{
+    if(!editingId) return;
+    events = events.filter(e=>e.id!==editingId);
+    writeAll(STORE_KEY, events);
+    closeModal(); render();
+  };
+  mSave.onclick = ()=>{
+    const s = new Date(mStart.value), e = new Date(mEnd.value);
+    if(!(s<e)){ alert('La date/heure de fin doit être après le début.'); return; }
+    const payload = {
+      id: editingId || crypto.randomUUID(),
+      title: mTitleInput.value || (mType.value==='visite'?'Visite':'RDV'),
+      type: mType.value, start: s.toISOString(), end: e.toISOString(),
+      contact: mContact.value, phone: mPhone.value, notes: mNotes.value
+    };
+    if(editingId){
+      const i = events.findIndex(x=>x.id===editingId);
+      if(i>-1) events[i]=payload;
+    } else {
+      events.push(payload);
+    }
+    writeAll(STORE_KEY, events);
+    closeModal(); render();
+  };
+
+  // démarrage
+  render();
+})();
+</script>
+</body>
+</html>
