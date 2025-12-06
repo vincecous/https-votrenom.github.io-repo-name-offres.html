@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Offres de Prix – Programme Commercial Vincent</title>
+  
+  <!-- PWA Configuration -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4CAF50">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Offres TM">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <style>
+    :root { --bg:#111; --panel:#1a1a1a; --text:#f2f2f2; --muted:#bfbfbf;
+            --brand:#b30000; --shadow:0 6px 18px rgba(0,0,0,.35); --radius:12px; }
+    *{box-sizing:border-box}
+    body{ margin:0; font-family:system-ui, sans-serif; background:var(--bg); color:var(--text);
+          min-height:100vh; display:flex; flex-direction:column;}
+    header{ background:var(--brand); padding:1rem; text-align:center; box-shadow:var(--shadow);}
+    header h1{ margin:.2rem 0; }
+    nav{ background:#222; display:flex; justify-content:center; flex-wrap:wrap;}
+    nav a{ color:#f2f2f2; text-decoration:none; padding:.9rem 1.2rem; transition:.3s;}
+    nav a:hover{ background:var(--brand);}
+    main{ flex:1; padding:2rem; width:min(1100px,95vw); margin:auto;}
+    h2{ text-align:center; margin-bottom:1rem; }
+
+    .card{ background:var(--panel); padding:1rem; border-radius:var(--radius); box-shadow:var(--shadow); margin-bottom:1rem; }
+    label{ display:block; margin-top:.9rem; color:var(--muted); }
+    input, select, textarea{ width:100%; padding:.7rem; border-radius:8px; border:1px solid #333; background:#141414; color:#f2f2f2; }
+    textarea{ min-height:100px; }
+    .row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    @media (max-width:800px){ .row{ grid-template-columns:1fr; } }
+
+    table{ width:100%; border-collapse:collapse; margin-top:1rem; }
+    th, td{ border:1px solid #333; padding:.6rem; vertical-align:top; }
+    th{ background:#222; }
+    .line-controls{ display:flex; gap:8px; flex-wrap:wrap; margin-top:.5rem; }
+    .pill{ display:inline-flex; align-items:center; gap:.4rem; background:#222; padding:.35rem .6rem; border-radius:999px; font-size:.85rem; color:#ddd;}
+    .actions{ margin-top:1rem; display:flex; gap:10px; flex-wrap:wrap; }
+    button{ border:none; padding:.7rem 1rem; border-radius:8px; cursor:pointer; font-weight:600; }
+    .add{ background:#1976d2; color:#fff; }
+    .save{ background:var(--brand); color:#fff; }
+    .clear{ background:#333; color:#fff; }
+    .danger{ background:#a00; color:#fff; }
+    .export{ background:#0b6; color:#fff; }
+    .info{ background:#1976d2; color:#fff; }
+    .warning{ background:#f39c12; color:#fff; }
+
+    .muted{ color:#aaa; }
+    .bubble{ background:#181818; border:1px solid #2a2a2a; padding:.6rem; border-radius:10px; }
+    .grid-3{ display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; }
+    @media (max-width:1000px){ .grid-3{ grid-template-columns:1fr; } }
+
+    .offer{ background:#1a1a1a; padding:1rem; border-radius:10px; margin-bottom:1rem; border:1px solid #2b2b2b; }
+    .offer h4{ margin:.2rem 0 .4rem; }
+    .badge{ display:inline-block; background:#222; padding:.2rem .5rem; border-radius:999px; font-size:.8rem; margin-left:.4rem;}
+    .num{ font-size:.85rem; color:#bbb; margin-left:.5rem;}
+
+    @media print {
+      body { background:white !important; color:black !important; }
+      nav, button, .actions { display:none !important; }
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>💰 Offres de Prix – Transmosca</h1>
+    <h2>Programme Commercial Vincent</h2>
+  </header>
+
+  <nav>
+    <a href="index.html">🏠 Accueil</a>
+    <a href="clients.html">👥 Clients</a>
+    <a href="rapports.html">📄 Rapport de visite</a>
+    <a href="offres.html">💰 Offres</a>
+    <a href="contrats.html">📄 Contrats</a>
+    <a href="resultats.html">📊 Résultats</a>
+  </nav>
+
+  <main>
+    <h2>Créer une Offre de Prix</h2>
+
+    <script>
+      // Initialize the page
+    </script>
+
+    <section class="card">
+      <form id="offreForm">
+        <div class="row">
+          <div>
+            <label for="clientType">Type de client</label>
+            <select id="clientType" required>
+              <option value="">-- Sélectionner --</option>
+              <option value="particulier">Personne physique</option>
+              <option value="societe">Société</option>
+            </select>
+          </div>
+          <div>
+            <label for="contractType">Type de contrat</label>
+            <select id="contractType" required>
+              <option value="">-- Sélectionner --</option>
+              <option value="annuel">Contrat à l'année</option>
+              <option value="spot">Spot / occasionnel</option>
+              <option value="evenement">Événement</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div><label for="clientName">Nom / Raison sociale *</label><input id="clientName" required placeholder="Nom ou société" /></div>
+          <div><label for="etablissement">Nom établissement / Restaurant</label><input id="etablissement" placeholder="Ex: Restaurant Le Concordia" /></div>
+        </div>
+
+        <div class="row">
+          <div><label for="adresse">Adresse (client)</label><input id="adresse" placeholder="Adresse de facturation" /></div>
+          <div><label for="dureeContrat">Durée du contrat (mois)</label>
+            <select id="dureeContrat">
+              <option value="">-- Sélectionner --</option>
+              <option value="12">12 mois</option>
+              <option value="24">24 mois</option>
+              <option value="36">36 mois</option>
+              <option value="48">48 mois</option>
+              <option value="60">60 mois</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div><label for="adressePresta">Adresse de prestation</label><input id="adressePresta" placeholder="Lieu de prestation" /></div>
+          <div><label for="email">E-mail</label><input id="email" type="email" placeholder="exemple@domaine.com" /></div>
+        </div>
+
+        <div class="row">
+          <div><label for="tel">Téléphone (entreprise)</label><input id="tel" type="tel" placeholder="+32 ..." /></div>
+          <div><label for="tva">N° de TVA</label><input id="tva" placeholder="BE0123.456.789" /></div>
+        </div>
+
+        <div class="row">
+          <div><label for="contactName">Personne de contact</label><input id="contactName" placeholder="Nom Prénom" /></div>
+          <div><label for="contactPhone">Téléphone personne de contact</label><input id="contactPhone" type="tel" placeholder="+32 ..." /></div>
+        </div>
+
+        <div class="row">
+          <div><label for="remarks">Remarques</label><textarea id="remarks" placeholder="Précisions logistiques, conditions particulières…"></textarea></div>
+          <div></div>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h3 style="margin-top:0;">Lignes d'offre</h3>
+      <div class="muted">Choisis le type de ligne puis complète les champs.</div>
+
+      <table id="tableLignes">
+        <thead>
+          <tr>
+            <th style="width:200px">Type de ligne</th>
+            <th>Détails</th>
+            <th style="width:70px">Suppr.</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <div class="actions">
+      <button type="button" id="addLine" class="add">➕ Ajouter une ligne</button>
+        <button type="button" id="saveOffer" class="save">💾 Enregistrer l'offre</button>
+        <button type="button" id="clearAll" class="clear">🗑️ Supprimer toutes les offres</button>
+      </div>
+    </section>
+
+    <section>
+      <h3>📋 Offres enregistrées</h3>
+      
+      <div style="margin-bottom:1rem; display:flex; gap:10px; align-items:center;">
+        <input type="text" id="searchInput" placeholder="🔍 Rechercher par nom, TVA, adresse, établissement..." style="flex:1; padding:0.7rem; border-radius:8px; border:1px solid #333; background:#141414; color:#f2f2f2;"/>
+        <button class="save" onclick="exportData()">💾 Sauvegarder données</button>
+        <button class="info" onclick="importData()">📥 Importer données</button>
+      </div>
+      
+      <div id="offres"></div>
+    </section>
+  </main>
+
+  <footer style="text-align:center; padding:1rem; background:#222; color:#bfbfbf;">
+    &copy; 2025 Transmosca — Module Offres
+  </footer>
+
+  <script>
+    // Logo will be loaded via DOMContentLoaded
+    
+    // Enregistrement du Service Worker pour PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+          .then(registration => {
+            console.log('Service Worker enregistré:', registration.scope);
+          })
+          .catch(error => {
+            console.log('Erreur Service Worker:', error);
+          });
+      });
+    }
+    
+    window.addEventListener('DOMContentLoaded', () => {
+      const KEY = "tm_offres";
+      const CONTRACT_KEY = "tm_contrats";
+      const RESULTS_KEY = "tm_resultats";
+      const DECHETS = ["classe2","classe3","bois","pmc","papier carton","déchets verts","amiante","plastique","Terre","organique"];
+      const POUBELLES = ["120L","240L","770L","1100L","3000L","5000L"];
+      const CONTENEURS = ["8 m³","10 m³","12 m³","14 m³","16 m³","20 m³","24 m³","30 m³"];
+
+      // Expose lists early so diagnostics/fallbacks can access them before later initializations
+      try{ window.DECHETS = DECHETS; window.POUBELLES = POUBELLES; window.CONTENEURS = CONTENEURS; }catch(e){}
+
+      const COMPANY = {
+        name: "S.P.R.L. TRANSMOSCA",
+        activities: "TRANSPORTS – TERRASSEMENTS – CONTAINERS – LOCATIONS",
+        waste: "GESTION GLOBALE DES DÉCHETS – TRI / VALORISATION",
+        address: "Rue J. Stiernon, 20 — 7134 RESSAIX",
+        rw: "Agréée et enregistrée R.W.",
+        tva: "T.V.A. BE 0430.930.814",
+        phone: "Tél. : 064/36.96.98",
+        site: "www.transmosca.be",
+        email: "info@transmosca.be",
+        logoSrc: "transmosca.jfif"
+      };
+      const SALES = { name:"Vincent Cousin", title:"Sales Manager", phone:"0483 18 24 92", email:"vincent@transmosca.be" };
+
+      const pad5 = n => String(n).padStart(5,"0");
+      const thisYear = () => new Date().getFullYear();
+      const offerSeqKeyForYear = y => `tm_offer_seq_${y}`;
+
+      function nextOfferNumber(){
+        const y = thisYear();
+        const key = offerSeqKeyForYear(y);
+        let n = parseInt(localStorage.getItem(key)||"0",10)+1;
+        localStorage.setItem(key, String(n));
+        return { year: y, seq: n, num: `offre/vicou/${y}/${pad5(n)}` };
+      }
+      function makeContractNumberFromOfferNum(offerNum){
+        return offerNum.replace(/^offre\/vicou\//, "contrat/vicou/");
+      }
+
+      const tbody = document.querySelector("#tableLignes tbody");
+      
+      // Lazy getter for tbody to ensure it's queried when DOM is ready
+      let _tbodyCache = null;
+      const getTbody = () => {
+        if(!_tbodyCache) _tbodyCache = document.querySelector("#tableLignes tbody");
+        return _tbodyCache;
+      };
+      const offresEl = document.getElementById("offres");
+
+      const opt = list => list.map(v=>`<option value="${v}">${v}</option>`).join("");
+      const readOffers = () => { try{ return JSON.parse(localStorage.getItem(KEY)||"[]"); }catch{ return []; } };
+      const writeOffers = arr => localStorage.setItem(KEY, JSON.stringify(arr));
+      const readContracts = () => { try{ return JSON.parse(localStorage.getItem(CONTRACT_KEY)||"[]"); }catch{ return []; } };
+      const writeContracts = arr => localStorage.setItem(CONTRACT_KEY, JSON.stringify(arr));
+      const readResults = () => { try{ return JSON.parse(localStorage.getItem(RESULTS_KEY)||"[]"); }catch{ return []; } };
+      const writeResults = arr => localStorage.setItem(RESULTS_KEY, JSON.stringify(arr));
+      const money = v => (v===undefined||v===null||v==="") ? "—" : (Number(v)||0).toLocaleString('fr-FR',{minimumFractionDigits:2, maximumFractionDigits:2})+" €";
+      const safe = v => (v===undefined||v===null||v==="") ? "—" : String(v);
+      const escapeHtml = s => String(s||'').replace(/[&<>"]/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[m]));
+
+      function setDebug(msg){ const el = document.getElementById('debugStatus'); if(el) el.textContent = 'Status: ' + msg; }
+
+      // Si LOGO_BASE64 n'est pas présent (logo.js non chargé), tenter de charger l'image
+      // locale `transmosca.jpg` et la convertir en data URL (fallback pour usage local file://).
+      (function ensureLogoInline(){
+        if(typeof window.LOGO_BASE64 !== 'undefined'){
+          setDebug(`Logo deja present — ${window.LOGO_BASE64.length} bytes`);
+          return;
+        }
+
+        setDebug('Conversion locale du logo...');
+        const candidates = ['transmosca.jpg','transmosca.jpeg','transmosca.png','transmosca.JPG','transmosca.JPEG','transmosca'];
+        let idx = 0;
+
+        const tryLoad = () => {
+          if(idx >= candidates.length){
+            setDebug('Logo introuvable');
+            try{ alert('Logo non present. Verifiez que le fichier "transmosca.jpg" (ou .png) se trouve dans le meme dossier que "offres.html".'); }catch(e){}
+            return;
+          }
+
+          const name = candidates[idx++];
+          const img = new Image();
+          // Ne PAS définir crossOrigin pour les fichiers locaux (cause d'erreur)
+          img.onload = function(){
+            try{
+              const canvas = document.createElement('canvas');
+              canvas.width = img.naturalWidth || img.width;
+              canvas.height = img.naturalHeight || img.height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0);
+              window.LOGO_BASE64 = canvas.toDataURL('image/jpeg');
+              setDebug('Logo converti — ' + window.LOGO_BASE64.length + ' bytes');
+              try{ alert('Logo present — ' + window.LOGO_BASE64.length + ' bytes'); }catch(e){}
+            }catch(e){
+              console.error('Erreur conversion logo:', e);
+              setDebug('Erreur conversion logo');
+            }
+          };
+          img.onerror = function(){
+            // essayer le suivant
+            tryLoad();
+          };
+          img.src = name;
+        };
+
+        tryLoad();
+      })();
+
+      function lineTemplate(){
+        const tr = document.createElement("tr");
+        // Resolve lists from current closure or fallback to window.* (diagnostic-friendly)
+        const _DECHETS = (typeof DECHETS !== 'undefined') ? DECHETS : (window.DECHETS || []);
+        const _POUBELLES = (typeof POUBELLES !== 'undefined') ? POUBELLES : (window.POUBELLES || []);
+        const _CONTENEURS = (typeof CONTENEURS !== 'undefined') ? CONTENEURS : (window.CONTENEURS || []);
+
+        tr.innerHTML = `
+          <td>
+            <select class="lineType">
+              <option value="">-- Choisir --</option>
+              <option value="poubelle">Conteneur poubelle</option>
+              <option value="conteneur">Conteneur (8–30 m³)</option>
+              <option value="bigbag">Big Bag 1 m³</option>
+              <option value="sac">Sac poubelle</option>
+              <option value="sac_transparent">Sac plastiques transparents</option>
+              <option value="sac_frigolite">Sac frigolite</option>
+            </select>
+            <div class="line-controls">
+              <span class="pill">Déchets
+                <select class="dechetSel">
+                  <option value="">—</option>
+                  ${opt(_DECHETS)}
+                </select>
+              </span>
+            </div>
+          </td>
+          <td class="details"></td>
+          <td><button type="button" class="danger del">✖</button></td>
+        `;
+        const typeSel = tr.querySelector(".lineType");
+        const details = tr.querySelector(".details");
+        tr.querySelector(".del").onclick = ()=> tr.remove();
+
+        function renderDetails(){
+          const t = typeSel.value;
+          if (!t){ details.innerHTML = `<em class="muted">Sélectionnez un type.</em>`; return; }
+
+          if (t === "poubelle"){
+            details.innerHTML = `
+              <div class="bubble grid-3">
+                <div>
+                  <label>Modèle</label>
+                  <select class="poubelleModele">${opt(_POUBELLES)}</select>
+                  <label style="margin-top:.6rem;">Nombre</label>
+                  <input type="number" min="1" class="poubelleNombre" value="1"/>
+                  <label>Fréquence</label>
+                  <input class="poubelleFrequence" placeholder="1x/semaine"/>
+                </div>
+                <div>
+                  <label>Location (€/mois)</label>
+                  <input type="number" min="0" step="0.01" class="poubelleLoc" value="0"/>
+                  <label>Vidange (€)</label>
+                  <input type="number" min="0" step="0.01" class="poubelleVidange" value="0"/>
+                </div>
+                <div>
+                  <label>Poids max (kg)</label>
+                  <input type="number" min="0" step="0.01" class="poubelleMax" value="0"/>
+                  <label>Surpoids (€/kg)</label>
+                  <input type="number" min="0" step="0.01" class="poubelleSurpoids" value="0"/>
+                </div>
+              </div>`;
+          }
+          else if (t === "conteneur"){
+            details.innerHTML = `
+              <div class="bubble">
+                <div class="row">
+                  <div><label>Volume</label><select class="contVolume">${opt(_CONTENEURS)}</select></div>
+                  <div><label>Mode</label>
+                    <select class="contMode">
+                      <option value="forfait">Forfait</option>
+                      <option value="poids">Au poids</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="grid-3" style="margin-top:.6rem;">
+                  <div class="forfaitFields">
+                    <label>Forfait (€)</label>
+                    <input type="number" min="0" step="0.01" class="contForfaitPrix" value="0"/>
+                    <label>Location (€/mois)</label>
+                    <input type="number" min="0" step="0.01" class="contForfaitLoc" value="0"/>
+                  </div>
+                  <div class="forfaitFields">
+                    <label>Poids max (kg)</label>
+                    <input type="number" min="0" step="0.01" class="contForfaitMax" value="0"/>
+                    <label>Surpoids (€/kg)</label>
+                    <input type="number" min="0" step="0.01" class="contForfaitSurpoids" value="0"/>
+                  </div>
+                  <div class="poidsFields" style="display:none">
+                    <label>Transport (€)</label>
+                    <input type="number" min="0" step="0.01" class="contPoidsTransport" value="0"/>
+                    <label>Tarif (€/tonne)</label>
+                    <input type="number" min="0" step="0.01" class="contPoidsTarif" value="0"/>
+                    <label>Location (€/mois)</label>
+                    <input type="number" min="0" step="0.01" class="contPoidsLoc" value="0"/>
+                  </div>
+                </div>
+              </div>`;
+            const modeSel = details.querySelector(".contMode");
+            const forfaitFields = details.querySelectorAll(".forfaitFields");
+            const poidsFields = details.querySelector(".poidsFields");
+            modeSel.addEventListener("change", ()=>{
+              if(modeSel.value==="forfait"){
+                forfaitFields.forEach(el=>el.style.display="block");
+                poidsFields.style.display="none";
+              } else {
+                forfaitFields.forEach(el=>el.style.display="none");
+                poidsFields.style.display="block";
+              }
+            });
+          }
+          else if (t === "bigbag"){
+            details.innerHTML = `<div class="bubble grid-3">
+              <div><label>Volume</label><input value="1 m³" disabled /></div>
+              <div><label>Coût (€)</label><input type="number" min="0" step="0.01" class="bbCost" value="0"/></div>
+              <div><label>Info</label><input value="Tout compris" disabled /></div>
+            </div>`;
+          }
+          else if (t === "sac"){
+            details.innerHTML = `<div class="bubble grid-3">
+              <div><label>Type</label><input value="Sac poubelle" disabled /></div>
+              <div><label>Coût (€)</label><input type="number" min="0" step="0.01" class="sacCost" value="0"/></div>
+              <div><label>Poids max (kg)</label><input type="number" min="0" step="0.01" class="sacMax" value="0"/></div>
+            </div>`;
+          }
+          else if (t === "sac_transparent"){
+            details.innerHTML = `<div class="bubble grid-3">
+              <div><label>Type</label><input value="Sac plastiques transparents" disabled /></div>
+              <div><label>Coût (€)</label><input type="number" min="0" step="0.01" class="sacTpaCost" value="0"/></div>
+              <div><label>Info</label><input value="Tout compris" disabled /></div>
+            </div>`;
+          }
+          else if (t === "sac_frigolite"){
+            details.innerHTML = `<div class="bubble grid-3">
+              <div><label>Type</label><input value="Sac frigolite" disabled /></div>
+              <div><label>Coût (€)</label><input type="number" min="0" step="0.01" class="sacFrigoCost" value="0"/></div>
+              <div><label>Info</label><input value="Tout compris" disabled /></div>
+            </div>`;
+          }
+        }
+
+        typeSel.addEventListener("change", renderDetails);
+        renderDetails();
+        return tr;
+      }
+
+      // Function to add a new line - called from addEventListener
+      function _addLineInternal(){
+        try{
+          const tb = getTbody();
+          if(!tb) throw new Error('Table tbody not found');
+          tb.appendChild(lineTemplate());
+        }catch(e){
+          console.error('Erreur _addLineInternal:', e);
+          try{ alert('Erreur ajout ligne: ' + (e && e.message)); }catch(_){}
+        }
+      }
+
+      // No complex init diagnostics — keep it simple and functional.
+
+      function gatherForm(){
+        const clientType = document.getElementById("clientType").value;
+        const contractType = document.getElementById("contractType").value;
+        const clientName = document.getElementById("clientName").value.trim();
+        if(!clientType || !contractType || !clientName){
+          alert("Client, type de client et type de contrat requis.");
+          return null;
+        }
+        const base = {
+          id: crypto.randomUUID(),
+          date: new Date().toLocaleDateString("fr-FR"),
+          clientType, contractType, clientName,
+          etablissement: document.getElementById("etablissement").value.trim(),
+          adresse: document.getElementById("adresse").value.trim(),
+          adressePresta: document.getElementById("adressePresta").value.trim(),
+          email: document.getElementById("email").value.trim(),
+          tel: document.getElementById("tel").value.trim(),
+          tva: document.getElementById("tva").value.trim(),
+          contactName: document.getElementById("contactName").value.trim(),
+          contactPhone: document.getElementById("contactPhone").value.trim(),
+          remarks: document.getElementById("remarks").value.trim(),
+          dureeContrat: document.getElementById("dureeContrat").value,
+          lignes: []
+        };
+        const tb1 = getTbody();
+        if(!tb1) return base;
+        tb1.querySelectorAll("tr").forEach(tr=>{
+          const typeEl = tr.querySelector(".lineType");
+          const type = typeEl.value;
+          if(!type) return;
+          const dechet = tr.querySelector(".dechetSel").value;
+          const details = tr.querySelector(".details");
+
+          if(type==="poubelle"){
+            const modele = details.querySelector(".poubelleModele").value;
+            const nombre = details.querySelector(".poubelleNombre").value;
+            const frequence = details.querySelector(".poubelleFrequence").value;
+            const loc = details.querySelector(".poubelleLoc").value;
+            const vidange = details.querySelector(".poubelleVidange").value;
+            const max = details.querySelector(".poubelleMax").value;
+            const surpoids = details.querySelector(".poubelleSurpoids").value;
+            base.lignes.push({type,dechet,modele,nombre,frequence,loc,vidange,max,surpoids});
+          }
+          else if(type==="conteneur"){
+            const volume = details.querySelector(".contVolume").value;
+            const mode = details.querySelector(".contMode").value;
+            if(mode==="forfait"){
+              const forfaitPrix = details.querySelector(".contForfaitPrix").value;
+              const forfaitLoc = details.querySelector(".contForfaitLoc").value;
+              const forfaitMax = details.querySelector(".contForfaitMax").value;
+              const forfaitSurpoids = details.querySelector(".contForfaitSurpoids").value;
+              base.lignes.push({type,dechet,volume,mode,forfaitPrix,forfaitLoc,forfaitMax,forfaitSurpoids});
+            } else {
+              const poidsTransport = details.querySelector(".contPoidsTransport").value;
+              const poidsTarif = details.querySelector(".contPoidsTarif").value;
+              const poidsLoc = details.querySelector(".contPoidsLoc").value;
+              base.lignes.push({type,dechet,volume,mode,poidsTransport,poidsTarif,poidsLoc});
+            }
+          }
+          else if(type==="bigbag"){
+            const cost = details.querySelector(".bbCost").value;
+            base.lignes.push({type,dechet,cost});
+          }
+          else if(type==="sac"){
+            const cost = details.querySelector(".sacCost").value;
+            const max = details.querySelector(".sacMax").value;
+            base.lignes.push({type,dechet,cost,max});
+          }
+          else if(type==="sac_transparent"){
+            const cost = details.querySelector(".sacTpaCost").value;
+            base.lignes.push({type,dechet,cost});
+          }
+          else if(type==="sac_frigolite"){
+            const cost = details.querySelector(".sacFrigoCost").value;
+            base.lignes.push({type,dechet,cost});
+          }
+        });
+        return base;
+      }
+
+      function saveOffer(){
+        const data = gatherForm();
+        if(!data) return;
+        const offers = readOffers();
+        const offerNum = nextOfferNumber();
+        data.offerNumber = offerNum.num;
+        offers.push(data);
+        writeOffers(offers);
+        alert("Offre enregistrée : " + offerNum.num);
+        document.getElementById("offreForm").reset();
+        getTbody().innerHTML = "";
+        renderOffers();
+      }
+
+      function deleteOffer(id){
+        if(!confirm("Supprimer cette offre ?")) return;
+        let offers = readOffers();
+        offers = offers.filter(o => o.id !== id);
+        writeOffers(offers);
+        renderOffers();
+      }
+
+      function editOffer(id){
+        const offers = readOffers();
+        const offer = offers.find(o => o.id === id);
+        if(!offer) return;
+
+        // Remplir le formulaire avec les données existantes
+        document.getElementById("clientType").value = offer.clientType;
+        document.getElementById("contractType").value = offer.contractType;
+        document.getElementById("clientName").value = offer.clientName;
+        document.getElementById("etablissement").value = offer.etablissement || "";
+        document.getElementById("adresse").value = offer.adresse || "";
+        document.getElementById("dureeContrat").value = offer.dureeContrat || "";
+        document.getElementById("adressePresta").value = offer.adressePresta || "";
+        document.getElementById("email").value = offer.email || "";
+        document.getElementById("tel").value = offer.tel || "";
+        document.getElementById("tva").value = offer.tva || "";
+        document.getElementById("contactName").value = offer.contactName || "";
+        document.getElementById("contactPhone").value = offer.contactPhone || "";
+        document.getElementById("remarks").value = offer.remarks || "";
+
+        // Recréer les lignes
+        getTbody().innerHTML = "";
+        offer.lignes.forEach(ligne => {
+          const tr = lineTemplate();
+          getTbody().appendChild(tr);
+          
+          const typeSel = tr.querySelector(".lineType");
+          const dechetSel = tr.querySelector(".dechetSel");
+          typeSel.value = ligne.type;
+          typeSel.dispatchEvent(new Event('change'));
+          
+          setTimeout(() => {
+            dechetSel.value = ligne.dechet || "";
+            const details = tr.querySelector(".details");
+            
+            if(ligne.type === "poubelle"){
+              details.querySelector(".poubelleModele").value = ligne.modele || "";
+              details.querySelector(".poubelleNombre").value = ligne.nombre || "";
+              details.querySelector(".poubelleFrequence").value = ligne.frequence || "";
+              details.querySelector(".poubelleLoc").value = ligne.loc || "";
+              details.querySelector(".poubelleVidange").value = ligne.vidange || "";
+              details.querySelector(".poubelleMax").value = ligne.max || "";
+              details.querySelector(".poubelleSurpoids").value = ligne.surpoids || "";
+            }
+            else if(ligne.type === "conteneur"){
+              details.querySelector(".contVolume").value = ligne.volume || "";
+              details.querySelector(".contMode").value = ligne.mode || "forfait";
+              details.querySelector(".contMode").dispatchEvent(new Event('change'));
+              
+              setTimeout(() => {
+                if(ligne.mode === "forfait"){
+                  details.querySelector(".contForfaitPrix").value = ligne.forfaitPrix || "";
+                  details.querySelector(".contForfaitLoc").value = ligne.forfaitLoc || "";
+                  details.querySelector(".contForfaitMax").value = ligne.forfaitMax || "";
+                  details.querySelector(".contForfaitSurpoids").value = ligne.forfaitSurpoids || "";
+                } else {
+                  details.querySelector(".contPoidsTransport").value = ligne.poidsTransport || "";
+                  details.querySelector(".contPoidsTarif").value = ligne.poidsTarif || "";
+                  details.querySelector(".contPoidsLoc").value = ligne.poidsLoc || "";
+                }
+              }, 50);
+            }
+            else if(ligne.type === "bigbag"){
+              details.querySelector(".bbCost").value = ligne.cost || "";
+            }
+            else if(ligne.type === "sac"){
+              details.querySelector(".sacCost").value = ligne.cost || "";
+              details.querySelector(".sacMax").value = ligne.max || "";
+            }
+            else if(ligne.type === "sac_transparent"){
+              details.querySelector(".sacTpaCost").value = ligne.cost || "";
+            }
+            else if(ligne.type === "sac_frigolite"){
+              details.querySelector(".sacFrigoCost").value = ligne.cost || "";
+            }
+          }, 50);
+        });
+
+        // Supprimer l'offre existante et changer le bouton pour mode édition
+        const saveBtn = document.getElementById("saveOffer");
+        saveBtn.textContent = "💾 Mettre à jour l'offre";
+        saveBtn.onclick = () => {
+          const data = gatherForm();
+          if(!data) return;
+          
+          // Garder l'ID et le numéro d'offre existants
+          data.id = offer.id;
+          data.offerNumber = offer.offerNumber;
+          
+          let offers = readOffers();
+          const index = offers.findIndex(o => o.id === id);
+          if(index !== -1) offers[index] = data;
+          writeOffers(offers);
+          
+          alert("Offre mise à jour : " + offer.offerNumber);
+          document.getElementById("offreForm").reset();
+          getTbody().innerHTML = "";
+          
+          // Restaurer le bouton normal
+          saveBtn.textContent = "💾 Enregistrer l'offre";
+          saveBtn.onclick = saveOffer;
+          
+          renderOffers();
+        };
+
+        // Scroll vers le haut
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function exportPDF(offer){
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Vérifier si le logo est chargé
+        const logoPresent = typeof window.LOGO_BASE64 !== 'undefined';
+        console.log("Logo disponible?", logoPresent);
+        if(logoPresent) {
+          console.log("Logo chargé, taille:", window.LOGO_BASE64.length);
+          setDebug(`Logo chargé — ${window.LOGO_BASE64.length} bytes`);
+        } else {
+          setDebug('Logo non disponible');
+        }
+
+        // Fonction pour ajouter header sur chaque page
+        function addHeader(doc, pageY = 10, withLogo = false){
+          // Logo Transmosca en filigrane centré (si disponible)
+          if(withLogo && typeof window.LOGO_BASE64 !== 'undefined') {
+              try {
+                console.log("Ajout du logo au PDF...");
+                setDebug('Ajout du logo au PDF...');
+                doc.saveGraphicsState();
+                doc.setGState(new doc.GState({opacity: 0.08}));
+                doc.addImage(window.LOGO_BASE64, 'JPEG', 35, 90, 140, 70);
+                doc.restoreGraphicsState();
+                console.log("Logo ajouté avec succès");
+                setDebug('Logo ajouté au PDF');
+              } catch(e) {
+                console.error("Erreur ajout logo:", e);
+                setDebug('Erreur ajout logo');
+              }
+          } else {
+            console.log("Logo non ajouté - withLogo:", withLogo, "Logo existe:", typeof window.LOGO_BASE64 !== 'undefined');
+            setDebug('Logo non ajouté au PDF');
+          }
+          
+          // Coordonnées Transmosca (centrées en haut)
+          doc.setFontSize(9);
+          doc.setFont("helvetica", "bold");
+          doc.text("S.P.R.L. TRANSMOSCA", 105, pageY + 5, { align: "center" });
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(8);
+          doc.text("TRANSPORTS - TERRASSEMENTS - CONTAINERS - LOCATIONS", 105, pageY + 10, { align: "center" });
+          doc.text("GESTION GLOBALE DES DECHETS - TRI / VALORISATION", 105, pageY + 14, { align: "center" });
+          doc.text("Rue J. Stiernon, 20 - 7134 RESSAIX", 105, pageY + 18, { align: "center" });
+          doc.text("T.V.A. BE 0430.930.814 | Tel.: 064/36.96.98", 105, pageY + 22, { align: "center" });
+          doc.text("www.transmosca.be | info@transmosca.be", 105, pageY + 26, { align: "center" });
+          
+          return pageY + 35;
+        }
+
+        // ============= PAGE 1 - Message d'introduction =============
+        let y = addHeader(doc, 10, true);  // true = ajouter le logo
+        y += 5;
+
+        // Coordonnées complètes du client (à droite)
+        const clientStartY = y;
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "bold");
+        doc.text("CLIENT:", 140, y);
+        doc.setFont("helvetica", "normal");
+        y += 5;
+        doc.text(offer.clientName || "", 140, y);
+        if(offer.etablissement){
+          y += 4;
+          doc.text(offer.etablissement, 140, y);
+        }
+        if(offer.adresse){
+          y += 4;
+          doc.text(offer.adresse, 140, y);
+        }
+        if(offer.tva){
+          y += 4;
+          doc.text("TVA: " + offer.tva, 140, y);
+        }
+        if(offer.tel){
+          y += 4;
+          doc.text("Tel: " + offer.tel, 140, y);
+        }
+        if(offer.email){
+          y += 4;
+          doc.text("Email: " + offer.email, 140, y);
+        }
+
+        // Titre descendu de 5cm supplémentaires
+        y = Math.max(y, clientStartY + 20);
+        y += 55;
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
+        doc.text("OFFRE DE PRIX", 105, y, { align: "center" });
+        y += 12;
+
+        // Message d'introduction
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "normal");
+        doc.text("Bonjour,", 20, y);
+        y += 10;
+        doc.text("Suite a votre demande, voici l'offre de prix que vous avez sollicitee.", 20, y);
+        y += 10;
+        doc.text("Cette offre reste valable 14 jours.", 20, y);
+        y += 10;
+        doc.text("Nous restons a votre disposition pour tout renseignement complementaire.", 20, y);
+        y += 15;
+
+        // Points forts
+        doc.setFont("helvetica", "bold");
+        doc.text("Nos points forts :", 20, y);
+        y += 8;
+        doc.setFont("helvetica", "normal");
+        doc.text("- Service de qualite", 30, y);
+        y += 6;
+        doc.text("- Disponibilite", 30, y);
+        y += 6;
+        doc.text("- Reactivite", 30, y);
+        y += 15;
+
+        // Informations de base alignées
+        const labelX = 20;
+        const valueX = 70;
+        
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        doc.text("Numero d'offre:", labelX, y);
+        doc.setFont("helvetica", "normal");
+        doc.text(offer.offerNumber, valueX, y);
+        y += 6;
+        
+        doc.setFont("helvetica", "bold");
+        doc.text("Date:", labelX, y);
+        doc.setFont("helvetica", "normal");
+        doc.text(offer.date, valueX, y);
+        y += 6;
+        
+        if(offer.dureeContrat){
+          doc.setFont("helvetica", "bold");
+          doc.text("Duree du contrat:", labelX, y);
+          doc.setFont("helvetica", "normal");
+          doc.text(offer.dureeContrat + " mois", valueX, y);
+          y += 6;
+        }
+
+        // ============= PAGE 2 - Détails =============
+        doc.addPage();
+        y = addHeader(doc);
+        y += 10;
+
+        // Titre centré
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text("DETAILS DE L'OFFRE", 105, y, { align: "center" });
+        y += 10;
+
+        // Encadré infos client avec tableau aligné
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "normal");
+        
+        // Calculer hauteur nécessaire
+        let infoLines = 4; // Client, Etablissement, Adresse, Contact
+        if(offer.remarks) infoLines++;
+        const boxHeight = 5 + (infoLines * 5) + 3;
+        
+        doc.rect(15, y, 180, boxHeight);
+        y += 5;
+        
+        // Tableau d'informations aligné
+        const labelX2 = 20;
+        const valueX2 = 70;
+        
+        doc.setFont("helvetica", "bold");
+        doc.text("Client:", labelX2, y);
+        doc.setFont("helvetica", "normal");
+        doc.text(offer.clientName, valueX2, y);
+        y += 5;
+        
+        if(offer.etablissement) {
+          doc.setFont("helvetica", "bold");
+          doc.text("Etablissement:", labelX2, y);
+          doc.setFont("helvetica", "normal");
+          doc.text(offer.etablissement, valueX2, y);
+          y += 5;
+        }
+        
+        doc.setFont("helvetica", "bold");
+        doc.text("Adresse de prestation:", labelX2, y);
+        doc.setFont("helvetica", "normal");
+        doc.text(offer.adressePresta || "-", valueX2, y);
+        y += 5;
+        
+        doc.setFont("helvetica", "bold");
+        doc.text("Personne de contact:", labelX2, y);
+        doc.setFont("helvetica", "normal");
+        const contactText = (offer.contactName || "-") + ", " + (offer.contactPhone || "-");
+        doc.text(contactText, valueX2, y);
+        y += 5;
+        
+        if(offer.remarks){
+          doc.setFont("helvetica", "bold");
+          doc.text("Remarques:", labelX2, y);
+          doc.setFont("helvetica", "normal");
+          const remarkText = offer.remarks.length > 70 ? offer.remarks.substring(0, 70) + "..." : offer.remarks;
+          doc.text(remarkText, valueX2, y);
+          y += 5;
+        }
+        
+        y += 3;
+
+        // Tableau produits
+        y += 10;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.text("PRODUITS ET SERVICES", 20, y);
+        y += 8;
+
+        // Tableau avec lignes pour meilleure présentation
+        doc.setFontSize(8);
+        doc.setFont("helvetica", "bold");
+
+        offer.lignes.forEach((ligne, i) => {
+          if(y > 245) {
+            doc.addPage();
+            y = addHeader(doc);
+            y += 10;
+          }
+
+          // Ligne de séparation
+          if(i > 0) {
+            y += 3;
+          }
+
+          if(ligne.type === "poubelle"){
+            // En-tête pour poubelles avec bordures
+            const colX = [15, 40, 60, 75, 95, 120, 145, 170];
+            const colW = [25, 20, 15, 20, 25, 25, 25, 25];
+            
+            doc.setFont("helvetica", "bold");
+            doc.rect(15, y-3, 180, 10);
+            doc.text("Type", colX[0]+2, y+3);
+            doc.text("Dechet", colX[1]+2, y+3);
+            doc.text("Taille", colX[2]+2, y+3);
+            doc.text("Nb", colX[3]+2, y+3);
+            doc.text("Location", colX[4]+2, y+3);
+            doc.text("Vidange", colX[5]+2, y+3);
+            doc.text("Max", colX[6]+2, y+3);
+            doc.text("Surpoids", colX[7]+2, y+3);
+            y += 7;
+            
+            doc.rect(15, y, 180, 8);
+            doc.setFont("helvetica", "normal");
+            doc.text("Poubelle", colX[0]+2, y+5);
+            doc.text((ligne.dechet || "-").substring(0, 10), colX[1]+2, y+5);
+            doc.text(ligne.modele || "-", colX[2]+2, y+5);
+            doc.text(ligne.nombre || "-", colX[3]+2, y+5);
+            doc.text(`${ligne.loc || "0"} EUR`, colX[4]+2, y+5);
+            doc.text(`${ligne.vidange || "0"} EUR`, colX[5]+2, y+5);
+            doc.text(`${ligne.max || "0"} kg`, colX[6]+2, y+5);
+            doc.text(`${ligne.surpoids || "0"} EUR/kg`, colX[7]+2, y+5);
+            y += 10;
+          }
+          else if(ligne.type === "conteneur"){
+            if(ligne.mode === "forfait"){
+              // Conteneur en forfait avec bordures
+              const colX = [15, 40, 60, 80, 105, 135, 165];
+              
+              doc.setFont("helvetica", "bold");
+              doc.rect(15, y-3, 180, 10);
+              doc.text("Type", colX[0]+2, y+3);
+              doc.text("Dechet", colX[1]+2, y+3);
+              doc.text("Taille", colX[2]+2, y+3);
+              doc.text("Forfait", colX[3]+2, y+3);
+              doc.text("Location", colX[4]+2, y+3);
+              doc.text("Max", colX[5]+2, y+3);
+              doc.text("Surpoids", colX[6]+2, y+3);
+              y += 7;
+              
+              doc.rect(15, y, 180, 8);
+              doc.setFont("helvetica", "normal");
+              doc.text("Conteneur", colX[0]+2, y+5);
+              doc.text((ligne.dechet || "-").substring(0, 10), colX[1]+2, y+5);
+              doc.text(ligne.volume || "-", colX[2]+2, y+5);
+              doc.text(`${ligne.forfaitPrix || "0"} EUR`, colX[3]+2, y+5);
+              doc.text(`${ligne.forfaitLoc || "0"} EUR`, colX[4]+2, y+5);
+              doc.text(`${ligne.forfaitMax || "0"} kg`, colX[5]+2, y+5);
+              doc.text(`${ligne.forfaitSurpoids || "0"} EUR/kg`, colX[6]+2, y+5);
+              y += 10;
+            } else {
+              // Conteneur au poids avec bordures
+              const colX = [15, 50, 80, 110, 150];
+              
+              doc.setFont("helvetica", "bold");
+              doc.rect(15, y-3, 180, 10);
+              doc.text("Type", colX[0]+2, y+3);
+              doc.text("Dechet", colX[1]+2, y+3);
+              doc.text("Taille", colX[2]+2, y+3);
+              doc.text("Transport", colX[3]+2, y+3);
+              doc.text("Traitement/tonne", colX[4]+2, y+3);
+              y += 7;
+              
+              doc.rect(15, y, 180, 8);
+              doc.setFont("helvetica", "normal");
+              doc.text("Conteneur", colX[0]+2, y+5);
+              doc.text((ligne.dechet || "-").substring(0, 15), colX[1]+2, y+5);
+              doc.text(ligne.volume || "-", colX[2]+2, y+5);
+              doc.text(`${ligne.poidsTransport || "0"} EUR`, colX[3]+2, y+5);
+              doc.text(`${ligne.poidsTarif || "0"} EUR/T`, colX[4]+2, y+5);
+              y += 10;
+            }
+          }
+          else if(ligne.type === "bigbag"){
+            const colX = [15, 70, 130];
+            
+            doc.setFont("helvetica", "bold");
+            doc.rect(15, y-3, 180, 10);
+            doc.text("Type", colX[0]+2, y+3);
+            doc.text("Dechet", colX[1]+2, y+3);
+            doc.text("Cout unitaire", colX[2]+2, y+3);
+            y += 7;
+            
+            doc.rect(15, y, 180, 8);
+            doc.setFont("helvetica", "normal");
+            doc.text("Big Bag", colX[0]+2, y+5);
+            doc.text((ligne.dechet || "-").substring(0, 30), colX[1]+2, y+5);
+            doc.text(`${ligne.cost || "0"} EUR`, colX[2]+2, y+5);
+            y += 10;
+          }
+          else if(ligne.type === "sac"){
+            const colX = [15, 60, 120, 160];
+            
+            doc.setFont("helvetica", "bold");
+            doc.rect(15, y-3, 180, 10);
+            doc.text("Type", colX[0]+2, y+3);
+            doc.text("Dechet", colX[1]+2, y+3);
+            doc.text("Cout unitaire", colX[2]+2, y+3);
+            doc.text("Max", colX[3]+2, y+3);
+            y += 7;
+            
+            doc.rect(15, y, 180, 8);
+            doc.setFont("helvetica", "normal");
+            doc.text("Sac", colX[0]+2, y+5);
+            doc.text((ligne.dechet || "-").substring(0, 25), colX[1]+2, y+5);
+            doc.text(`${ligne.cost || "0"} EUR`, colX[2]+2, y+5);
+            doc.text(`${ligne.max || "0"} kg`, colX[3]+2, y+5);
+            y += 10;
+          }
+          else {
+            // Autres types avec bordures
+            const colX = [15, 70, 130];
+            
+            doc.setFont("helvetica", "bold");
+            doc.rect(15, y-3, 180, 10);
+            doc.text("Type", colX[0]+2, y+3);
+            doc.text("Dechet", colX[1]+2, y+3);
+            doc.text("Cout unitaire", colX[2]+2, y+3);
+            y += 7;
+            
+            doc.rect(15, y, 180, 8);
+            doc.setFont("helvetica", "normal");
+            doc.text(ligne.type || "-", colX[0]+2, y+5);
+            doc.text((ligne.dechet || "-").substring(0, 30), colX[1]+2, y+5);
+            doc.text(`${ligne.cost || "0"} EUR`, colX[2]+2, y+5);
+            y += 10;
+          }
+        });
+
+        // Signatures en bas de page (remontées de 3cm = 30 unités)
+        y = 230;
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        doc.text("Signature Transmosca:", 20, y);
+        doc.text("Signature Client:", 130, y);
+        y += 10;
+        doc.setFont("helvetica", "normal");
+        doc.text("Vincent Cousin", 20, y);
+        doc.text("Date:", 130, y);
+        y += 5;
+        doc.text("Sales Manager", 20, y);
+
+        doc.save(`Offre_${offer.offerNumber.replace(/\//g, "_")}.pdf`);
+      }
+
+      function createContractFromOffer(offer){
+        if(!confirm("Transformer cette offre en contrat signe ?")) return;
+        
+        const duree = offer.dureeContrat || prompt("Duree du contrat en mois (12, 24, 36, 48, 60):", "12");
+        if(!duree) return;
+
+        const contracts = readContracts();
+        const contractNum = makeContractNumberFromOfferNum(offer.offerNumber);
+        
+        const contract = {
+          ...offer,
+          contractNumber: contractNum,
+          signedDate: new Date().toLocaleDateString("fr-FR"),
+          dureeContrat: duree,
+          status: "actif"
+        };
+        
+        contracts.push(contract);
+        writeContracts(contracts);
+
+        // Ajouter au CA si durée spécifiée
+        if(duree){
+          const results = readResults();
+          let totalCA = 0;
+          
+          offer.lignes.forEach(ligne => {
+            if(ligne.type === "poubelle"){
+              const loc = parseFloat(ligne.loc) || 0;
+              totalCA += loc * parseInt(duree);
+            } else if(ligne.type === "conteneur"){
+              if(ligne.mode === "forfait"){
+                const loc = parseFloat(ligne.forfaitLoc) || 0;
+                totalCA += loc * parseInt(duree);
+              } else {
+                const loc = parseFloat(ligne.poidsLoc) || 0;
+                totalCA += loc * parseInt(duree);
+              }
+            }
+          });
+
+          results.push({
+            id: crypto.randomUUID(),
+            date: new Date().toLocaleDateString("fr-FR"),
+            contractNumber: contractNum,
+            client: offer.clientName,
+            etablissement: offer.etablissement || "",
+            duree: parseInt(duree),
+            montantTotal: totalCA,
+            year: new Date().getFullYear()
+          });
+          
+          writeResults(results);
+        }
+
+        alert("Contrat cree : " + contractNum + "\nAjoute aux resultats CA");
+        renderOffers();
+      }
+
+      function renderOffers(searchTerm = ""){
+        const offers = readOffers();
+        if(!offers.length){
+          offresEl.innerHTML = '<p class="muted">Aucune offre enregistree.</p>';
+          return;
+        }
+
+        // Filtrer les offres selon le terme de recherche
+        const filtered = searchTerm ? offers.filter(o => {
+          const term = searchTerm.toLowerCase();
+          return (o.clientName && o.clientName.toLowerCase().includes(term)) ||
+                 (o.etablissement && o.etablissement.toLowerCase().includes(term)) ||
+                 (o.tva && o.tva.toLowerCase().includes(term)) ||
+                 (o.adresse && o.adresse.toLowerCase().includes(term)) ||
+                 (o.adressePresta && o.adressePresta.toLowerCase().includes(term)) ||
+                 (o.offerNumber && o.offerNumber.toLowerCase().includes(term));
+        }) : offers;
+
+        if(!filtered.length){
+          offresEl.innerHTML = '<p class="muted">Aucune offre trouvee pour cette recherche.</p>';
+          return;
+        }
+
+        offresEl.innerHTML = filtered.map(o => `
+          <div class="offer">
+            <h4>${escapeHtml(o.clientName)}<span class="badge">${escapeHtml(o.clientType)}</span></h4>
+            <div class="muted">
+              ${o.etablissement ? `<strong>${escapeHtml(o.etablissement)}</strong><br>` : ''}
+              ${o.tva ? `TVA: ${escapeHtml(o.tva)}<br>` : ''}
+              ${o.adresse ? `Adresse: ${escapeHtml(o.adresse)}<br>` : ''}
+              Offre : <strong>${escapeHtml(o.offerNumber)}</strong> | 
+              Date : ${escapeHtml(o.date)} | 
+              ${o.lignes.length} ligne(s)
+              ${o.dureeContrat ? ` | Duree: ${o.dureeContrat} mois` : ''}
+            </div>
+            <div class="actions">
+              <button class="info" onclick='editOffer("${o.id}")'>✏️ Modifier</button>
+              <button class="warning" onclick='previewOffer(${JSON.stringify(o).replace(/'/g, "&#39;")})'>👁️ Visualiser</button>
+              <button class="export" onclick='exportPDF(${JSON.stringify(o).replace(/'/g, "&#39;")})'>📄 Export PDF</button>
+              <button class="save" onclick='createContractFromOffer(${JSON.stringify(o).replace(/'/g, "&#39;")})'>✅ Creer contrat</button>
+              <button class="danger" onclick='deleteOffer("${o.id}")'>🗑️ Supprimer</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      window.exportPDF = exportPDF;
+      window.createContractFromOffer = createContractFromOffer;
+      window.deleteOffer = deleteOffer;
+      window.editOffer = editOffer;
+      window.previewOffer = previewOffer;
+      window.exportData = exportData;
+      window.importData = importData;
+
+      function exportData(){
+        const data = {
+          offres: readOffers(),
+          contrats: readContracts(),
+          resultats: readResults(),
+          date: new Date().toISOString()
+        };
+        
+        const dataStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([dataStr], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `transmosca_backup_${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+        
+        alert("Données sauvegardées avec succès !");
+      }
+
+      function importData(){
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'application/json';
+        
+        input.onchange = (e) => {
+          const file = e.target.files[0];
+          if(!file) return;
+          
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            try {
+              const data = JSON.parse(event.target.result);
+              
+              if(confirm(`Importer les données du ${new Date(data.date).toLocaleDateString('fr-FR')} ?\n\n` +
+                        `- ${data.offres?.length || 0} offres\n` +
+                        `- ${data.contrats?.length || 0} contrats\n` +
+                        `- ${data.resultats?.length || 0} résultats\n\n` +
+                        `ATTENTION: Cela remplacera toutes vos données actuelles !`)){
+                
+                if(data.offres) writeOffers(data.offres);
+                if(data.contrats) writeContracts(data.contrats);
+                if(data.resultats) writeResults(data.resultats);
+                
+                alert("Données importées avec succès !");
+                renderOffers();
+              }
+            } catch(err) {
+              alert("Erreur lors de l'import: " + err.message);
+            }
+          };
+          reader.readAsText(file);
+        };
+        
+        input.click();
+      }
+
+      function previewOffer(offer){
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0,0,0,0.9);
+          z-index: 10000;
+          overflow: auto;
+          padding: 20px;
+        `;
+
+        const content = document.createElement('div');
+        content.style.cssText = `
+          max-width: 900px;
+          margin: 0 auto;
+          background: white;
+          padding: 40px;
+          border-radius: 8px;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+          position: relative;
+        `;
+
+        let html = `
+          <div style="position: relative;">
+            <button onclick="document.querySelector('[data-modal]').remove()" style="position: absolute; top: -10px; right: -10px; background: #ff4444; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; z-index: 10000; font-weight: bold;">✖ Fermer</button>
+            
+            <img src="transmosca.jpg" alt="Transmosca" style="position: absolute; top: 150px; left: 50%; transform: translateX(-50%); width: 400px; opacity: 0.08; z-index: 0;" onerror="this.style.display='none'">
+            
+            <div style="position: relative; z-index: 1; margin-top: 20px;">
+              <div style="text-align: center; margin-bottom: 30px;">
+                <h2 style="color: #333; margin: 10px 0;">S.P.R.L. TRANSMOSCA</h2>
+                <p style="font-size: 12px; color: #666; line-height: 1.6;">
+                  TRANSPORTS - TERRASSEMENTS - CONTAINERS - LOCATIONS<br>
+                  GESTION GLOBALE DES DECHETS - TRI / VALORISATION<br>
+                  Rue J. Stiernon, 20 - 7134 RESSAIX<br>
+                  T.V.A. BE 0430.930.814 | Tel.: 064/36.96.98<br>
+                  www.transmosca.be | info@transmosca.be
+                </p>
+              </div>
+            </div>
+          </div>
+
+            <div style="display: flex; justify-content: space-between; margin-bottom: 30px; position: relative; z-index: 1;">
+              <div style="flex: 1;"></div>
+              <div style="flex: 1; text-align: right; font-size: 13px; color: #333;">
+                <strong>CLIENT:</strong><br>
+              ${offer.clientName || ''}<br>
+              ${offer.etablissement ? offer.etablissement + '<br>' : ''}
+              ${offer.adresse ? offer.adresse + '<br>' : ''}
+              ${offer.tva ? 'TVA: ' + offer.tva + '<br>' : ''}
+              ${offer.tel ? 'Tel: ' + offer.tel + '<br>' : ''}
+                ${offer.email ? 'Email: ' + offer.email : ''}
+              </div>
+            </div>
+
+            <h1 style="text-align: center; color: #333; margin: 40px 0 30px 0; font-size: 28px; position: relative; z-index: 1;">OFFRE DE PRIX</h1>
+
+            <div style="margin: 30px 0; font-size: 14px; line-height: 1.8; color: #333; position: relative; z-index: 1;">
+            <p><strong>Bonjour,</strong></p>
+            <p>Suite a votre demande, voici l'offre de prix que vous avez sollicitee.</p>
+            <p>Cette offre reste valable 14 jours.</p>
+            <p>Nous restons a votre disposition pour tout renseignement complementaire.</p>
+            
+            <div style="margin: 20px 0;">
+              <strong>Nos points forts :</strong>
+              <ul style="margin: 10px 0; padding-left: 30px;">
+                <li>Service de qualite</li>
+                <li>Disponibilite</li>
+                <li>Reactivite</li>
+              </ul>
+            </div>
+
+            <table style="width: auto; border-collapse: collapse; font-size: 14px; margin: 0;">
+              <tr>
+                <td style="padding: 4px 20px 4px 0; border: none;"><strong>Numero d'offre:</strong></td>
+                <td style="padding: 4px 0; border: none;">${offer.offerNumber}</td>
+              </tr>
+              <tr>
+                <td style="padding: 4px 20px 4px 0; border: none;"><strong>Date:</strong></td>
+                <td style="padding: 4px 0; border: none;">${offer.date}</td>
+              </tr>
+              ${offer.dureeContrat ? `<tr>
+                <td style="padding: 4px 20px 4px 0; border: none;"><strong>Duree du contrat:</strong></td>
+                <td style="padding: 4px 0; border: none;">${offer.dureeContrat} mois</td>
+              </tr>` : ''}
+            </table>
+            </div>
+
+            <hr style="border: none; border-top: 2px solid #333; margin: 40px 0; position: relative; z-index: 1;">
+
+            <h2 style="text-align: center; color: #333; margin: 30px 0; position: relative; z-index: 1;">DETAILS DE L'OFFRE</h2>
+
+            <div style="border: 2px solid #333; padding: 15px; margin: 20px 0; font-size: 13px; position: relative; z-index: 1; background: white;">
+            <p><strong>Client:</strong> ${offer.clientName}</p>
+            ${offer.etablissement ? `<p><strong>Etablissement:</strong> ${offer.etablissement}</p>` : ''}
+            <p><strong>Adresse de prestation:</strong> ${offer.adressePresta || '-'}</p>
+            <p><strong>Personne de contact:</strong> ${offer.contactName || '-'}, ${offer.contactPhone || '-'}</p>
+              ${offer.remarks ? `<p><strong>Remarques:</strong> ${offer.remarks}</p>` : ''}
+            </div>
+
+            <h3 style="color: #333; margin: 30px 0 15px 0; position: relative; z-index: 1;">PRODUITS ET SERVICES</h3>
+          </div>
+        `;
+
+        offer.lignes.forEach((ligne, i) => {
+          html += `<div style="margin: 20px 0; border: 1px solid #ddd; border-radius: 5px; overflow: hidden; position: relative; z-index: 1; background: white;">`;
+          
+          if(ligne.type === 'poubelle'){
+            html += `
+              <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                <thead>
+                  <tr style="background: #f5f5f5;">
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Type</th>
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Dechet</th>
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Taille</th>
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Nb</th>
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Location</th>
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Vidange</th>
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Max</th>
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Surpoids</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">Poubelle</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${ligne.dechet || '-'}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${ligne.modele || '-'}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${ligne.nombre || '-'}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${ligne.loc || '0'} EUR</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${ligne.vidange || '0'} EUR</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${ligne.max || '0'} kg</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${ligne.surpoids || '0'} EUR/kg</td>
+                  </tr>
+                </tbody>
+              </table>
+            `;
+          } else if(ligne.type === 'conteneur'){
+            if(ligne.mode === 'forfait'){
+              html += `
+                <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                  <thead>
+                    <tr style="background: #f5f5f5;">
+                      <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Type</th>
+                      <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Dechet</th>
+                      <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Taille</th>
+                      <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Forfait</th>
+                      <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Location</th>
+                      <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Max</th>
+                      <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Surpoids</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="padding: 8px; border: 1px solid #ddd;">Conteneur</td>
+                      <td style="padding: 8px; border: 1px solid #ddd;">${ligne.dechet || '-'}</td>
+                      <td style="padding: 8px; border: 1px solid #ddd;">${ligne.volume || '-'}</td>
+                      <td style="padding: 8px; border: 1px solid #ddd;">${ligne.forfaitPrix || '0'} EUR</td>
+                      <td style="padding: 8px; border: 1px solid #ddd;">${ligne.forfaitLoc || '0'} EUR</td>
+                      <td style="padding: 8px; border: 1px solid #ddd;">${ligne.forfaitMax || '0'} kg</td>
+                      <td style="padding: 8px; border: 1px solid #ddd;">${ligne.forfaitSurpoids || '0'} EUR/kg</td>
+                    </tr>
+                  </tbody>
+                </table>
+              `;
+            } else {
+              html += `
+                <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                  <thead>
+                    <tr style="background: #f5f5f5;">
+                      <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Type</th>
+                      <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Dechet</th>
+                      <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Taille</th>
+                      <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Transport</th>
+                      <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Traitement/tonne</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="padding: 8px; border: 1px solid #ddd;">Conteneur</td>
+                      <td style="padding: 8px; border: 1px solid #ddd;">${ligne.dechet || '-'}</td>
+                      <td style="padding: 8px; border: 1px solid #ddd;">${ligne.volume || '-'}</td>
+                      <td style="padding: 8px; border: 1px solid #ddd;">${ligne.poidsTransport || '0'} EUR</td>
+                      <td style="padding: 8px; border: 1px solid #ddd;">${ligne.poidsTarif || '0'} EUR/T</td>
+                    </tr>
+                  </tbody>
+                </table>
+              `;
+            }
+          } else if(ligne.type === 'bigbag'){
+            html += `
+              <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                <thead>
+                  <tr style="background: #f5f5f5;">
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Type</th>
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Dechet</th>
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Cout unitaire</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">Big Bag</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${ligne.dechet || '-'}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${ligne.cost || '0'} EUR</td>
+                  </tr>
+                </tbody>
+              </table>
+            `;
+          } else if(ligne.type === 'sac'){
+            html += `
+              <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                <thead>
+                  <tr style="background: #f5f5f5;">
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Type</th>
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Dechet</th>
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Cout unitaire</th>
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Max</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">Sac</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${ligne.dechet || '-'}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${ligne.cost || '0'} EUR</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${ligne.max || '0'} kg</td>
+                  </tr>
+                </tbody>
+              </table>
+            `;
+          } else {
+            html += `
+              <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                <thead>
+                  <tr style="background: #f5f5f5;">
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Type</th>
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Dechet</th>
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Cout unitaire</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${ligne.type || '-'}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${ligne.dechet || '-'}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${ligne.cost || '0'} EUR</td>
+                  </tr>
+                </tbody>
+              </table>
+            `;
+          }
+          
+          html += `</div>`;
+        });
+
+        html += `
+          <div style="margin-top: 50px; display: flex; justify-content: space-between; position: relative; z-index: 1;">
+            <div>
+              <p><strong>Signature Transmosca:</strong></p>
+              <p style="margin-top: 30px;">Vincent Cousin<br>Sales Manager</p>
+            </div>
+            <div>
+              <p><strong>Signature Client:</strong></p>
+              <p style="margin-top: 30px;">Date:</p>
+            </div>
+          </div>
+          </div>
+        `;
+
+        content.innerHTML = html;
+        modal.appendChild(content);
+        modal.setAttribute('data-modal', 'true');
+        document.body.appendChild(modal);
+        
+        // Fermer aussi en cliquant sur le fond noir
+        modal.addEventListener('click', (e) => {
+          if(e.target === modal) modal.remove();
+        });
+      }
+
+      const addLineBtn = document.getElementById("addLine");
+      console.log('addLineBtn found:', addLineBtn);
+      if(addLineBtn){
+        console.log('Adding click listener to addLineBtn');
+        addLineBtn.addEventListener('click', function(e){
+          console.log('CLIC DETECTE sur addLine', e);
+          try {
+            console.log('Calling _addLineInternal...');
+            _addLineInternal();
+            console.log('_addLineInternal completed successfully');
+          } catch(err) {
+            console.error('Erreur lors de _addLineInternal:', err);
+            alert('Erreur: ' + err.message);
+          }
+        });
+      } else {
+        console.error('addLineBtn NOT FOUND!');
+      }
+
+      const saveBtnEl = document.getElementById("saveOffer");
+      if(saveBtnEl) saveBtnEl.addEventListener('click', saveOffer);
+      document.getElementById("clearAll").onclick = () => {
+        if(confirm("Supprimer TOUTES les offres ?")){
+          writeOffers([]);
+          renderOffers();
+        }
+      };
+
+      // Recherche en temps réel
+      const searchInput = document.getElementById("searchInput");
+      searchInput.addEventListener("input", (e) => {
+        renderOffers(e.target.value);
+      });
+
+      renderOffers();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Clients – Programme Commercial Vincent</title>
+<style>
+  :root{--bg:#111;--panel:#1a1a1a;--text:#f2f2f2;--muted:#bfbfbf;--brand:#b30000;--shadow:0 6px 18px rgba(0,0,0,.35);--radius:12px}
+  *{box-sizing:border-box} body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+  header{background:var(--brand);padding:1rem;text-align:center;box-shadow:var(--shadow)} header h1{margin:.2rem 0}
+  nav{background:#222;display:flex;justify-content:center;flex-wrap:wrap} nav a{color:#f2f2f2;text-decoration:none;padding:.9rem 1.2rem} nav a:hover{background:var(--brand)}
+  main{flex:1;padding:2rem;width:min(900px,95vw);margin:0 auto}
+  .card{background:var(--panel);padding:1rem;border-radius:12px;box-shadow:var(--shadow);margin-bottom:1rem}
+  label{display:block;margin-top:.8rem;color:#ccc}
+  input,textarea{width:100%;padding:.65rem;border-radius:10px;border:1px solid #333;background:#141414;color:#f2f2f2}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px} @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  .actions{margin-top:1rem;display:flex;gap:10px;flex-wrap:wrap}
+  button{border:none;border-radius:10px;padding:.7rem 1rem;font-weight:700;cursor:pointer}
+  .save{background:var(--brand);color:#fff} .secondary{background:#222;color:#fff}
+  .list .item{background:#1a1a1a;border:1px solid #2b2b2b;border-radius:10px;padding:.8rem;margin-bottom:.6rem}
+  .muted{color:#bfbfbf}
+</style>
+</head>
+<body>
+<header><h1>👥 Clients — Transmosca</h1><div>Programme Commercial Vincent</div></header>
+<nav>
+  <a href="index.html">🏠 Accueil</a>
+  <a href="clients.html">👥 Clients</a>
+  <a href="agenda.html">🗓️ Agenda</a>
+  <a href="rapports.html">📄 Rapport de visite</a>
+  <a href="offres.html">💰 Offres</a>
+  <a href="contrats.html">📄 Contrats</a>
+  <a href="resultats.html">📊 Résultats</a>
+</nav>
+
+<main>
+  <section class="card">
+    <h2 style="margin:0 0 .6rem">Créer un rendez-vous</h2>
+    <div class="grid2">
+      <div><label>Client / Titre</label><input id="title" placeholder="Ex. RDV Meunier"/></div>
+      <div class="grid2"><div><label>Début</label><input id="start" type="datetime-local"/></div><div><label>Fin</label><input id="end" type="datetime-local"/></div></div>
+      <div><label>Personne de contact</label><input id="contact" placeholder="Nom du contact"/></div>
+      <div><label>Téléphone</label><input id="phone" placeholder="+32 ..."/></div>
+    </div>
+    <label>Remarques</label><textarea id="notes" placeholder="Détails, adresse…"></textarea>
+    <div class="actions">
+      <button class="save" id="saveBtn">💾 Enregistrer le RDV</button>
+      <a class="secondary" href="agenda.html"><button type="button" class="secondary">➡️ Voir dans l’agenda</button></a>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3 style="margin:0 0 .6rem">Rendez-vous enregistrés</h3>
+    <div id="list" class="list"></div>
+  </section>
+</main>
+
+<footer style="text-align:center;padding:1rem;background:#222;color:#bfbfbf">&copy; 2025 Transmosca — Clients</footer>
+
+<script>
+(function(){
+  const KEY = "tm_agenda_events"; // l’agenda lit aussi cette clé
+  const list = document.getElementById('list');
+
+  function read(){ try{ return JSON.parse(localStorage.getItem(KEY)||"[]"); }catch{return []} }
+  function write(arr){ localStorage.setItem(KEY, JSON.stringify(arr)) }
+  function render(){
+    const data = read().filter(e=>e.type!=='visite');
+    list.innerHTML = data.length? "" : '<div class="muted">Aucun RDV.</div>';
+    for(const e of data){
+      const d = document.createElement('div'); d.className='item';
+      d.innerHTML = `<strong>${e.title||'RDV'}</strong><br><span class="muted">${new Date(e.start).toLocaleString('fr-FR')} → ${new Date(e.end).toLocaleString('fr-FR')}</span>`;
+      list.appendChild(d);
+    }
+  }
+  document.getElementById('saveBtn').onclick=()=>{
+    const s=new Date(document.getElementById('start').value), e=new Date(document.getElementById('end').value);
+    if(!(s<e)){ alert('L’heure de fin doit être après le début.'); return; }
+    const ev={
+      id: crypto.randomUUID(), type:'rdv',
+      title: document.getElementById('title').value || 'Rendez-vous',
+      start: s.toISOString(), end: e.toISOString(),
+      contact: document.getElementById('contact').value,
+      phone: document.getElementById('phone').value,
+      notes: document.getElementById('notes').value
+    };
+    const all=read(); all.push(ev); write(all);
+    alert('RDV enregistré ✅'); render();
+  };
+  render();
+})();
+</script>
+</body>
+</html>

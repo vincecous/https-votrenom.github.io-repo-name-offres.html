@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Rapport de visite – Programme Commercial Vincent</title>
+<style>
+  :root{--bg:#111;--panel:#1a1a1a;--text:#f2f2f2;--muted:#bfbfbf;--brand:#b30000;--shadow:0 6px 18px rgba(0,0,0,.35);--line:#2f2f2f}
+  *{box-sizing:border-box} body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+  header{background:var(--brand);padding:1rem;text-align:center;box-shadow:var(--shadow)} header h1{margin:.2rem 0}
+  nav{background:#222;display:flex;justify-content:center;flex-wrap:wrap} nav a{color:#fff;text-decoration:none;padding:.8rem 1.1rem} nav a:hover{background:var(--brand)}
+  main{padding:1.25rem;width:min(1000px,96vw);margin:0 auto}
+  .card{background:#1a1a1a;border-radius:12px;box-shadow:var(--shadow);padding:1rem;margin-bottom:1rem}
+  .toolbar{display:flex;gap:.6rem;align-items:center;margin-bottom:1rem}
+  .btn{border:none;border-radius:10px;padding:.55rem .9rem;background:#222;color:#fff;cursor:pointer}
+  input[type="date"]{background:#161616;color:#eee;border:1px solid #333;border-radius:10px;padding:.55rem .6rem}
+  table{width:100%;border-collapse:collapse} th,td{border:1px solid var(--line);padding:.55rem;vertical-align:top} th{background:#181818}
+  .muted{color:#bfbfbf}
+</style>
+</head>
+<body>
+<header><h1>📄 Rapport de visite — Transmosca</h1><div>Programme Commercial Vincent</div></header>
+<nav>
+  <a href="index.html">🏠 Accueil</a>
+  <a href="clients.html">👥 Clients</a>
+  <a href="agenda.html">🗓️ Agenda</a>
+  <a href="rapports.html">📄 Rapport de visite</a>
+  <a href="offres.html">💰 Offres</a>
+  <a href="contrats.html">📄 Contrats</a>
+  <a href="resultats.html">📊 Résultats</a>
+</nav>
+
+<main>
+  <div class="card toolbar">
+    <label for="day">Jour</label><input type="date" id="day"/>
+    <button class="btn" id="viewDay">Afficher jour</button>
+    <span style="flex:1"></span>
+    <button class="btn" id="viewWeek">Afficher semaine</button>
+  </div>
+
+  <section id="out" class="card"></section>
+</main>
+
+<script>
+(function(){
+  const KEYS=["tm_agenda_events","tm_events","tm_clients_rdv"];
+  const read=()=>{for(const k of KEYS){try{const v=JSON.parse(localStorage.getItem(k)||"[]"); if(Array.isArray(v)) return v;}catch{}} return [];}
+  const out=document.getElementById('out'); const dayI=document.getElementById('day'); dayI.value=new Date().toISOString().slice(0,10);
+
+  const sameDay=(a,b)=> a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();
+  const startOfWeek=d=>{const x=new Date(d); const w=(x.getDay()+6)%7; x.setDate(x.getDate()-w); x.setHours(0,0,0,0); return x;}
+  const addDays=(d,n)=>{const x=new Date(d); x.setDate(x.getDate()+n); return x;}
+
+  function renderDay(){
+    const d=new Date(dayI.value+"T12:00"); const list=read().filter(e=>e.type==='visite' && sameDay(new Date(e.start), d));
+    out.innerHTML = buildTable(list, `Visites du ${d.toLocaleDateString('fr-FR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'})}`);
+  }
+  function renderWeek(){
+    const d=new Date(dayI.value+"T12:00"); const start=startOfWeek(d), end=addDays(start,7);
+    const list=read().filter(e=>e.type==='visite' && new Date(e.start)>=start && new Date(e.start)<end)
+                     .sort((a,b)=> new Date(a.start)-new Date(b.start));
+    out.innerHTML = buildTable(list, `Visites de la semaine du ${start.toLocaleDateString('fr-FR')} au ${addDays(start,6).toLocaleDateString('fr-FR')}`);
+  }
+  function buildTable(list, title){
+    if(!list.length) return `<h3 style="margin-top:0">${title}</h3><div class="muted">Aucune visite.</div>`;
+    let rows=list.map(v=>`<tr><td>${new Date(v.start).toLocaleString('fr-FR')}</td><td>${new Date(v.end).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</td><td>${v.title||'Visite'}</td><td>${v.contact||''}</td><td>${v.phone||''}</td><td>${v.notes||''}</td></tr>`).join('');
+    return `<h3 style="margin-top:0">${title}</h3>
+            <table><thead><tr><th>Début</th><th>Fin</th><th>Client / Objet</th><th>Contact</th><th>Téléphone</th><th>Remarques</th></tr></thead>
+            <tbody>${rows}</tbody></table>`;
+  }
+  document.getElementById('viewDay').onclick=renderDay;
+  document.getElementById('viewWeek').onclick=renderWeek;
+  renderWeek();
+})();
+</script>
+</body>
+</html>

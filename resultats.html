@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Résultats – Programme Commercial Vincent</title>
+<style>
+  :root { --bg:#111; --panel:#1a1a1a; --text:#f2f2f2; --muted:#bfbfbf; --brand:#b30000; --shadow:0 6px 18px rgba(0,0,0,.35); --radius:12px; }
+  *{box-sizing:border-box}
+  body{ margin:0; font-family:system-ui, sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column;}
+  header{ background:var(--brand); padding:1rem; text-align:center; box-shadow:var(--shadow);}
+  header h1{ margin:.2rem 0; }
+  nav{ background:#222; display:flex; justify-content:center; flex-wrap:wrap;}
+  nav a{ color:#f2f2f2; text-decoration:none; padding:.9rem 1.2rem; transition:.3s;}
+  nav a:hover{ background:var(--brand);}
+  main{ flex:1; padding:2rem; width:min(1300px,95vw); margin:auto;}
+  h2{ text-align:center; margin-bottom:1rem; }
+
+  .card{ background:var(--panel); padding:1.5rem; border-radius:var(--radius); box-shadow:var(--shadow); margin-bottom:1.5rem; }
+  table{ width:100%; border-collapse:collapse; margin-top:1rem; }
+  th, td{ border:1px solid #333; padding:.6rem; vertical-align:top; text-align:left; }
+  th{ background:#222; font-weight:600; }
+  .total{ font-weight:bold; background:#1a3d1a; }
+  .year-header{ background:#2a2a2a; font-size:1.1em; font-weight:bold; }
+  .muted{ color:#aaa; }
+  button{ border:none; padding:.5rem .8rem; border-radius:8px; cursor:pointer; font-weight:600; }
+  .danger{ background:#a00; color:#fff; }
+  .info{ background:#1976d2; color:#fff; margin-right:10px; }
+  .stats{ display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; }
+  .stat-box{ background:#1a1a1a; padding:1rem; border-radius:10px; border:1px solid #2b2b2b; text-align:center; }
+  .stat-box h3{ margin:0 0 .5rem; font-size:2rem; color:var(--brand); }
+  .stat-box p{ margin:0; color:var(--muted); }
+</style>
+</head>
+<body>
+<header><h1>📊 Résultats — Transmosca</h1><div>Programme Commercial Vincent</div></header>
+
+<nav>
+  <a href="index.html">🏠 Accueil</a>
+  <a href="clients.html">👥 Clients</a>
+  <a href="rapports.html">📄 Rapport de visite</a>
+  <a href="offres.html">💰 Offres</a>
+  <a href="contrats.html">📄 Contrats</a>
+  <a href="resultats.html">📊 Résultats</a>
+</nav>
+
+<main>
+  <h2>Chiffre d'affaires par année</h2>
+
+  <section class="card">
+    <h3>📈 Statistiques globales</h3>
+    <div class="stats" id="globalStats"></div>
+  </section>
+
+  <section class="card">
+    <h3>📋 Détail des contrats signés</h3>
+    <div id="resultsTable"></div>
+  </section>
+
+  <section class="card">
+    <button class="danger" onclick="clearAllResults()">🗑️ Réinitialiser tous les résultats</button>
+  </section>
+</main>
+
+<footer style="text-align:center; padding:1rem; background:#222; color:#bfbfbf;">
+  &copy; 2025 Transmosca — Module Résultats
+</footer>
+
+<script>
+  const RESULTS_KEY = "tm_resultats";
+  
+  const readResults = () => {
+    try {
+      return JSON.parse(localStorage.getItem(RESULTS_KEY) || "[]");
+    } catch {
+      return [];
+    }
+  };
+
+  const writeResults = arr => localStorage.setItem(RESULTS_KEY, JSON.stringify(arr));
+  
+  const money = v => (Number(v) || 0).toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " €";
+  const escapeHtml = s => String(s || '').replace(/[&<>"]/g, m => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[m]));
+
+  function renderResults() {
+    const results = readResults();
+    const globalStatsEl = document.getElementById("globalStats");
+    const resultsTableEl = document.getElementById("resultsTable");
+
+    if (!results.length) {
+      globalStatsEl.innerHTML = '<p class="muted">Aucun contrat signé pour le moment.</p>';
+      resultsTableEl.innerHTML = '<p class="muted">Aucune donnée à afficher.</p>';
+      return;
+    }
+
+    // Calcul des statistiques globales
+    const totalCA = results.reduce((sum, r) => sum + (r.montantTotal || 0), 0);
+    const nbContrats = results.length;
+    
+    // Grouper par année
+    const byYear = {};
+    results.forEach(r => {
+      const year = r.year || new Date().getFullYear();
+      if (!byYear[year]) byYear[year] = [];
+      byYear[year].push(r);
+    });
+
+    const years = Object.keys(byYear).sort((a, b) => b - a);
+    const currentYear = new Date().getFullYear();
+    const caCurrentYear = byYear[currentYear] ? byYear[currentYear].reduce((sum, r) => sum + r.montantTotal, 0) : 0;
+
+    // Afficher stats globales
+    globalStatsEl.innerHTML = `
+      <div class="stat-box">
+        <h3>${money(totalCA)}</h3>
+        <p>CA Total</p>
+      </div>
+      <div class="stat-box">
+        <h3>${nbContrats}</h3>
+        <p>Contrats signés</p>
+      </div>
+      <div class="stat-box">
+        <h3>${money(caCurrentYear)}</h3>
+        <p>CA ${currentYear}</p>
+      </div>
+      <div class="stat-box">
+        <h3>${years.length}</h3>
+        <p>Années actives</p>
+      </div>
+    `;
+
+    // Afficher tableau détaillé par année
+    let tableHTML = '';
+    
+    years.forEach(year => {
+      const yearResults = byYear[year];
+      const yearTotal = yearResults.reduce((sum, r) => sum + r.montantTotal, 0);
+
+      tableHTML += `
+        <h4 style="margin-top:2rem;">Année ${year}</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>N° Contrat</th>
+              <th>Client</th>
+              <th>Établissement</th>
+              <th>Durée (mois)</th>
+              <th>Montant Total</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${yearResults.map((r, i) => `
+              <tr>
+                <td>${escapeHtml(r.date)}</td>
+                <td>${escapeHtml(r.contractNumber)}</td>
+                <td>${escapeHtml(r.client)}</td>
+                <td>${escapeHtml(r.etablissement || "—")}</td>
+                <td>${r.duree || "—"}</td>
+                <td>${money(r.montantTotal)}</td>
+                <td><button class="danger" onclick='deleteResult("${r.id}")'>🗑️</button></td>
+              </tr>
+            `).join('')}
+            <tr class="total">
+              <td colspan="5" style="text-align:right;">Total ${year} :</td>
+              <td colspan="2"><strong>${money(yearTotal)}</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+    });
+
+    resultsTableEl.innerHTML = tableHTML;
+  }
+
+  function deleteResult(id) {
+    if (!confirm("Supprimer ce résultat ?")) return;
+    let results = readResults();
+    results = results.filter(r => r.id !== id);
+    writeResults(results);
+    renderResults();
+  }
+
+  function clearAllResults() {
+    if (!confirm("ATTENTION : Supprimer TOUS les résultats ? Cette action est irréversible !")) return;
+    writeResults([]);
+    renderResults();
+  }
+
+  window.deleteResult = deleteResult;
+  window.clearAllResults = clearAllResults;
+
+  renderResults();
+</script>
+</body>
+</html>
