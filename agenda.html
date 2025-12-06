@@ -48,10 +48,40 @@
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   @media(max-width:760px){ .row2{grid-template-columns:1fr} .timeCol{width:48px} }
   footer{background:#222;color:#bfbfbf;text-align:center;padding:1rem}
+  
+  /* Écran de connexion PIN */
+  #pinScreen{ position:fixed; top:0; left:0; right:0; bottom:0; background:var(--bg);
+              display:flex; align-items:center; justify-content:center; z-index:9999; }
+  #pinScreen.hidden{ display:none; }
+  .pinBox{ background:var(--panel); padding:3rem; border-radius:14px; 
+           box-shadow:var(--shadow); text-align:center; max-width:400px; }
+  .pinBox h2{ margin-top:0; color:var(--brand); }
+  .pinInput{ width:100%; padding:1rem; font-size:1.5rem; text-align:center; 
+             border:2px solid var(--brand); border-radius:8px; background:var(--bg); 
+             color:var(--text); margin:1.5rem 0; letter-spacing:0.5rem; }
+  .pinBtn{ width:100%; padding:1rem; font-size:1.1rem; background:var(--brand); 
+           color:white; border:none; border-radius:8px; cursor:pointer; 
+           transition:0.3s; font-weight:bold; }
+  .pinBtn:hover{ opacity:0.9; transform:translateY(-2px); }
+  .pinError{ color:#ff4444; margin-top:1rem; font-size:0.9rem; }
+  #appContent.locked{ display:none; }
 </style>
   <link rel="stylesheet" href="mobile-fixes.css">
 </head>
 <body>
+<!-- Écran de connexion PIN -->
+<div id="pinScreen">
+  <div class="pinBox">
+    <h2>🔒 Connexion sécurisée</h2>
+    <p>Entrez votre code PIN pour accéder à l'application</p>
+    <input type="password" id="pinInput" class="pinInput" maxlength="4" placeholder="••••" autocomplete="off">
+    <button onclick="checkPin()" class="pinBtn">🔓 Se connecter</button>
+    <div id="pinError" class="pinError"></div>
+  </div>
+</div>
+
+<!-- Contenu de l'application -->
+<div id="appContent" class="locked">
 <header><h1>🗓️ Agenda — Transmosca</h1><div>Programme Commercial Vincent</div></header>
 <nav class="top">
   <a href="index.html">🏠 Accueil</a>
@@ -214,7 +244,11 @@
   render();
 })();
 </script>
+
+<script src="pin-auth.js"></script>
 <script src="sync-simple.js"></script>
+
+</div> <!-- Fin appContent -->
 </body>
 </html>
 
