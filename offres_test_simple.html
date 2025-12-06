@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Test Ajouter Ligne</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0a0a0a; color: #f2f2f2; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    td, th { border: 1px solid #333; padding: 12px; text-align: left; }
+    th { background: #222; }
+    button { padding: 10px 16px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 10px 5px 10px 0; }
+    button:hover { background: #0052a3; }
+    select { padding: 8px; background: #222; color: #fff; border: 1px solid #444; border-radius: 4px; }
+    input { padding: 8px; background: #222; color: #fff; border: 1px solid #444; border-radius: 4px; }
+    .diag { position: fixed; top: 12px; right: 12px; background: #0066cc; color: #fff; padding: 16px; border-radius: 8px; max-width: 300px; word-break: break-word; z-index: 9999; }
+    .error { background: #cc0000; }
+  </style>
+</head>
+<body>
+  <div class="diag" id="diag">Initialisation...</div>
+  <h1>Test: Ajouter Ligne</h1>
+  
+  <table id="tableLignes">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Details</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  
+  <button id="addLine">➕ Ajouter une ligne</button>
+  
+  <script>
+    const diag = msg => {
+      const el = document.getElementById('diag');
+      if(el) {
+        el.textContent = msg;
+        if(msg.includes('ERREUR') || msg.includes('Error')) {
+          el.classList.add('error');
+        } else {
+          el.classList.remove('error');
+        }
+      }
+      console.log(msg);
+    };
+    
+    diag('Script démarré');
+    
+    // Constants
+    const POUBELLES = ["120L", "240L", "770L", "1100L", "3000L", "5000L"];
+    const CONTENEURS = ["8 m³", "10 m³", "12 m³", "14 m³", "16 m³", "20 m³", "24 m³", "30 m³"];
+    
+    // Lazy getter for tbody
+    let _tbodyCache = null;
+    const getTbody = () => {
+      if(!_tbodyCache) {
+        _tbodyCache = document.querySelector("#tableLignes tbody");
+        diag('getTbody() appelé: ' + (_tbodyCache ? 'TROUVÉ' : 'NOT FOUND'));
+      }
+      return _tbodyCache;
+    };
+    
+    // Line template
+    function lineTemplate(){
+      diag('lineTemplate() appelé');
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>
+          <select class="lineType">
+            <option value="">-- Choisir --</option>
+            <option value="poubelle">Poubelle</option>
+            <option value="conteneur">Conteneur</option>
+          </select>
+        </td>
+        <td>
+          <select class="poubelleModele">
+            <option value="">-- Modèle --</option>
+            ${POUBELLES.map(v => `<option value="${v}">${v}</option>`).join('')}
+          </select>
+        </td>
+        <td>
+          <button type="button" onclick="this.parentElement.parentElement.remove()">✖</button>
+        </td>
+      `;
+      return tr;
+    }
+    
+    // Add line function
+    function _addLineInternal(){
+      diag('_addLineInternal() appelé');
+      try {
+        const tb = getTbody();
+        if(!tb) throw new Error('tbody introuvable');
+        const newRow = lineTemplate();
+        tb.appendChild(newRow);
+        diag('✓ Ligne ajoutée');
+      } catch(e){
+        diag('ERREUR _addLineInternal: ' + e.message);
+        console.error(e);
+      }
+    }
+    
+    // Setup button
+    document.addEventListener('DOMContentLoaded', () => {
+      diag('DOMContentLoaded déclenché');
+      const btn = document.getElementById('addLine');
+      if(btn){
+        diag('Bouton trouvé, attachement handler...');
+        btn.addEventListener('click', _addLineInternal);
+        diag('✓ Prêt - cliquez sur le bouton');
+      } else {
+        diag('ERREUR: Bouton addLine introuvable');
+      }
+    });
+    
+    // Fallback if DOMContentLoaded already fired
+    if(document.readyState === 'loading'){
+      diag('En attente du DOMContentLoaded...');
+    } else {
+      diag('Page déjà chargée - init manuelle');
+      const btn = document.getElementById('addLine');
+      if(btn){
+        btn.addEventListener('click', _addLineInternal);
+        diag('✓ Prêt - cliquez sur le bouton');
+      }
+    }
+  </script>
+</body>
+</html>

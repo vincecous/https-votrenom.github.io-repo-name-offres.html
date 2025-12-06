@@ -1,0 +1,167 @@
+/* 📱 Améliorations pour affichage mobile */
+
+/* Forcer le texte à s'adapter sur mobile */
+@media (max-width: 768px) {
+  /* Réduire les marges et padding */
+  body {
+    font-size: 14px !important;
+  }
+  
+  main {
+    padding: 0.5rem !important;
+    width: 100% !important;
+  }
+  
+  .card {
+    padding: 0.75rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+  
+  /* Tables plus lisibles */
+  table {
+    font-size: 12px !important;
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  th, td {
+    padding: 0.4rem !important;
+    min-width: 80px;
+  }
+  
+  /* Navigation responsive */
+  nav {
+    flex-direction: column !important;
+  }
+  
+  nav a {
+    padding: 0.6rem !important;
+    width: 100%;
+    text-align: center;
+  }
+  
+  /* Boutons plus grands pour le tactile */
+  button, .btn {
+    min-height: 44px;
+    font-size: 14px !important;
+  }
+  
+  /* Inputs plus grands */
+  input, select, textarea {
+    font-size: 16px !important; /* Empêche le zoom automatique sur iOS */
+    padding: 0.75rem !important;
+  }
+  
+  /* Grilles en colonne unique */
+  .row, .grid2, .grid-3, .row2 {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Actions en colonne */
+  .actions {
+    flex-direction: column !important;
+  }
+  
+  .actions button {
+    width: 100%;
+  }
+  
+  /* Header plus compact */
+  header {
+    padding: 0.75rem !important;
+  }
+  
+  header h1 {
+    font-size: 1.3rem !important;
+  }
+  
+  header h2 {
+    font-size: 1rem !important;
+  }
+  
+  /* Écran PIN adapté */
+  .pinBox {
+    max-width: 90vw !important;
+    padding: 2rem 1.5rem !important;
+  }
+  
+  .pinInput {
+    font-size: 1.8rem !important;
+  }
+  
+  /* Toolbar responsive */
+  .toolbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  
+  .toolbar * {
+    width: 100% !important;
+  }
+  
+  /* Stats boxes */
+  .stats {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  
+  /* Offres/contrats */
+  .offer, .bubble {
+    margin-bottom: 0.75rem !important;
+  }
+  
+  /* Éviter le débordement de texte */
+  * {
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+}
+
+/* Très petits écrans (< 400px) */
+@media (max-width: 400px) {
+  body {
+    font-size: 13px !important;
+  }
+  
+  table {
+    font-size: 11px !important;
+  }
+  
+  .stats {
+    grid-template-columns: 1fr !important;
+  }
+  
+  header h1 {
+    font-size: 1.1rem !important;
+  }
+}
+
+/* Mode paysage mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  header {
+    padding: 0.5rem !important;
+  }
+  
+  nav a {
+    padding: 0.4rem !important;
+    font-size: 13px !important;
+  }
+}
+
+/* Boutons de synchronisation */
+#syncButtons button {
+  flex: 1;
+  min-width: 200px;
+  max-width: 300px;
+}
+
+@media (max-width: 768px) {
+  #syncButtons {
+    flex-direction: column !important;
+  }
+  
+  #syncButtons button {
+    width: 100% !important;
+    max-width: none !important;
+  }
+}
